@@ -28,10 +28,11 @@ export default function LoginPage() {
         access_token: string;
         user_id: string;
         name: string;
+        onboarding_completed: boolean;
       }>("/api/auth/login", { email, password });
-      setAuth(data.access_token, data.user_id, data.name);
+      setAuth(data.access_token, data.user_id, data.name, data.onboarding_completed);
       apiClient.setToken(data.access_token);
-      router.push("/dashboard");
+      router.push(data.onboarding_completed ? "/dashboard" : "/onboarding");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {

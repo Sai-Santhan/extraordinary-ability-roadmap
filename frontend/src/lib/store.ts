@@ -5,7 +5,9 @@ interface AuthState {
   token: string | null;
   userId: string | null;
   userName: string | null;
-  setAuth: (token: string, userId: string, userName: string) => void;
+  onboardingCompleted: boolean | null;
+  setAuth: (token: string, userId: string, userName: string, onboardingCompleted?: boolean) => void;
+  setOnboardingCompleted: (completed: boolean) => void;
   clearAuth: () => void;
   isAuthenticated: () => boolean;
 }
@@ -16,8 +18,11 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       userId: null,
       userName: null,
-      setAuth: (token, userId, userName) => set({ token, userId, userName }),
-      clearAuth: () => set({ token: null, userId: null, userName: null }),
+      onboardingCompleted: null,
+      setAuth: (token, userId, userName, onboardingCompleted = false) =>
+        set({ token, userId, userName, onboardingCompleted }),
+      setOnboardingCompleted: (completed) => set({ onboardingCompleted: completed }),
+      clearAuth: () => set({ token: null, userId: null, userName: null, onboardingCompleted: null }),
       isAuthenticated: () => !!get().token,
     }),
     { name: "auth-storage" }

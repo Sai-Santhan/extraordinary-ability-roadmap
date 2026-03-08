@@ -15,6 +15,9 @@ router = APIRouter(prefix="/api/evidence", tags=["evidence"])
 UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+ALLOWED_EXTENSIONS = {"pdf", "txt", "json", "mbox", "ics", "docx", "jpg", "jpeg", "png", "webp"}
+MAX_FILE_SIZE = 20 * 1024 * 1024  # 20 MB
+
 
 @router.post("/upload")
 async def upload_evidence(
@@ -24,6 +27,14 @@ async def upload_evidence(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    # Validate file extension
+    ext = os.path.splitext(file.filename or "file")[1].lstrip(".")
+    if ext.lower() not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File type '.{ext}' not allowed. Accepted: {', '.join(sorted(ALLOWED_EXTENSIONS))}",
+        )
+
     # Verify consent
     consent_result = await db.execute(
         select(DataConsent).where(
@@ -50,11 +61,14 @@ async def upload_evidence(
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
 
+    # Read and validate file size
+    content = await file.read()
+    if len(content) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail="File too large (max 20MB)")
+
     # Save file
-    ext = os.path.splitext(file.filename or "file")[1].lstrip(".")
     file_id = str(uuid.uuid4())
     file_path = os.path.join(UPLOAD_DIR, f"{file_id}.{ext}")
-    content = await file.read()
     with open(file_path, "wb") as f:
         f.write(content)
 

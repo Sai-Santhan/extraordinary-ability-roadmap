@@ -1,4 +1,6 @@
-from pydantic import BaseModel, Field
+import re
+
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional
 from enum import Enum
 from datetime import date, datetime
@@ -6,6 +8,8 @@ from datetime import date, datetime
 
 class ImmigrationTarget(str, Enum):
     EB1A = "eb1a"
+    EB1B = "eb1b"
+    EB1C = "eb1c"
     NIW = "niw"
     O1 = "o1"
 
@@ -102,6 +106,16 @@ class ImmigrationProfile(BaseModel):
     notable_repos: list[str] = []
     selective_memberships: list[str] = []
     compensation_percentile: Optional[str] = None
+    # EB-1B relevant fields
+    teaching_experience_years: Optional[int] = None
+    research_experience_years: Optional[int] = None
+    has_permanent_job_offer: Optional[bool] = None
+    job_offer_type: Optional[str] = None
+    # EB-1C relevant fields
+    managerial_experience_years: Optional[int] = None
+    executive_capacity: Optional[bool] = None
+    foreign_employer: Optional[str] = None
+    foreign_employer_relationship: Optional[str] = None
     data_sources: list[EvidenceSource] = []
 
 
@@ -165,9 +179,20 @@ class RawCareerData(BaseModel):
 
 
 class UserCreate(BaseModel):
-    email: str
+    email: EmailStr
     password: str
     name: str
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters")
+        if not re.search(r"[a-zA-Z]", v):
+            raise ValueError("Password must contain at least one letter")
+        if not re.search(r"[0-9]", v):
+            raise ValueError("Password must contain at least one digit")
+        return v
 
 
 class UserLogin(BaseModel):
@@ -180,12 +205,43 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
     user_id: str
     name: str
+    onboarding_completed: bool = False
 
 
 class ConsentRequest(BaseModel):
     source_type: str
     consent_given: bool
     processing_description: str
+
+
+class OnboardingRequest(BaseModel):
+    role_type: str  # "researcher", "engineer", "executive", "entrepreneur", "other"
+    primary_field: str
+    years_experience: int
+    qualifications: list[str]  # ["publications", "managerial", "multinational", "job_offer", "awards"]
+    current_visa: Optional[str] = None
+
+
+class PathwayRecommendation(BaseModel):
+    recommended: str
+    match_score: int
+    explanation: str
+
+
+class OnboardingResponse(BaseModel):
+    recommended_pathway: str
+    recommendations: list[PathwayRecommendation]
+    profile_id: str
+
+
+class PathwayUpdateRequest(BaseModel):
+    pathway: ImmigrationTarget
+
+
+class RateLimitResponse(BaseModel):
+    message: str
+    retry_after: str
+    limit_type: str
 
 
 class ProfileResponse(BaseModel):

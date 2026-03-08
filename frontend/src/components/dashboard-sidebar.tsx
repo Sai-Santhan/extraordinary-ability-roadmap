@@ -81,7 +81,7 @@ export function DashboardSidebar({ userName }: { userName: string | null }) {
           <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center" aria-hidden="true">
             <Compass className="h-4.5 w-4.5 text-primary-foreground" />
           </div>
-          <span className="font-semibold text-base tracking-tight">EB1A Immigration Roadmap</span>
+          <span className="font-semibold text-base tracking-tight">Immigration Roadmap</span>
         </div>
       </SidebarHeader>
       <SidebarContent>

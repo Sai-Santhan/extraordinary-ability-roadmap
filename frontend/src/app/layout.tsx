@@ -10,8 +10,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "EB1A Immigration Roadmap — Your Immigration Roadmap",
-  description: "AI-powered immigration roadmap tool for EB-1A, NIW, and O-1 pathways",
+  title: "Immigration Roadmap — AI-Powered Immigration Planning",
+  description: "AI-powered immigration roadmap tool for EB-1A, EB-1B, EB-1C, NIW, and O-1 pathways",
 };
 
 export default function RootLayout({

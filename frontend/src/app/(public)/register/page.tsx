@@ -29,10 +29,11 @@ export default function RegisterPage() {
         access_token: string;
         user_id: string;
         name: string;
+        onboarding_completed: boolean;
       }>("/api/auth/register", { email, password, name });
-      setAuth(data.access_token, data.user_id, data.name);
+      setAuth(data.access_token, data.user_id, data.name, data.onboarding_completed);
       apiClient.setToken(data.access_token);
-      router.push("/dashboard");
+      router.push(data.onboarding_completed ? "/dashboard" : "/onboarding");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
@@ -89,7 +90,7 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={6}
+                minLength={8}
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>

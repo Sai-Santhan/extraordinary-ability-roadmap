@@ -3,6 +3,9 @@ from app.parsers.mbox_parser import parse_mbox
 from app.parsers.ics_parser import parse_ics
 from app.parsers.json_parser import parse_chatgpt_export, parse_google_takeout_json
 from app.parsers.linkedin_parser import parse_linkedin_pdf
+from app.parsers.image_parser import parse_image
+
+IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
 
 
 def parse_text(file_path: str) -> dict:
@@ -34,6 +37,10 @@ PARSER_MAP = {
 
 
 def route_parser(file_type: str, source_type: str, file_path: str) -> dict:
+    # Image files always use vision parser
+    if file_type in IMAGE_EXTENSIONS:
+        return parse_image(file_path)
+
     parser = PARSER_MAP.get((file_type, source_type))
     if not parser:
         # Fallback: try matching by file type alone

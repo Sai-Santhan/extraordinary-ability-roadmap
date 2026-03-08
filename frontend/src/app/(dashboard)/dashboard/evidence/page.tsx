@@ -21,6 +21,7 @@ import {
   Eye,
   EyeOff,
   Plus,
+  Image,
 } from "lucide-react";
 import { ConsentModal } from "@/components/consent-modal";
 import { apiClient } from "@/lib/api";
@@ -34,6 +35,7 @@ const DATA_SOURCES = [
   { type: "calendar", name: "Calendar (ICS)", icon: Calendar, accept: ".ics", description: "Google Calendar events" },
   { type: "linkedin", name: "LinkedIn PDF", icon: Linkedin, accept: ".pdf,.txt", description: "LinkedIn profile export" },
   { type: "chatgpt_export", name: "ChatGPT Export", icon: MessageSquare, accept: ".json", description: "ChatGPT conversation history" },
+  { type: "documents", name: "Other Documents", icon: Image, accept: ".pdf,.jpg,.jpeg,.png,.webp", description: "Certificates, awards, letters, articles (PDF or images)" },
 ];
 
 interface UploadedFile {
@@ -59,6 +61,9 @@ export default function EvidencePage() {
   const [removing, setRemoving] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [previewId, setPreviewId] = useState<string | null>(null);
+  const [pendingFile, setPendingFile] = useState<{ sourceType: string; file: File } | null>(null);
+  const [eventSourceRef, setEventSourceRef] = useState<EventSource | null>(null);
+  const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
   const token = useAuthStore((s) => s.token);
   const { stages, setStage, setProfileId: setAnalysisProfileId, reset: resetAnalysis } = useAnalysisStore();
 
@@ -96,6 +101,7 @@ export default function EvidencePage() {
 
   const handleFileSelect = async (sourceType: string, sourceName: string, file: File) => {
     if (!hasConsent(sourceType)) {
+      setPendingFile({ sourceType, file });
       setConsentModal({ open: true, type: sourceType, name: sourceName });
       return;
     }
@@ -132,38 +138,63 @@ export default function EvidencePage() {
     }
   };
 
-  const handleConsentGranted = () => {
+  const handleConsentGranted = async () => {
     setConsents((prev) => [...prev, { source_type: consentModal.type, consent_given: true }]);
+    // Auto-upload the file that was pending consent
+    if (pendingFile && pendingFile.sourceType === consentModal.type) {
+      const { sourceType, file } = pendingFile;
+      setPendingFile(null);
+      await uploadFile(sourceType, file);
+    }
   };
 
   const startAnalysis = async () => {
     if (!profileId || uploads.length === 0) return;
     setAnalyzing(true);
+    setRateLimitMessage(null);
     resetAnalysis();
     setAnalysisProfileId(profileId);
 
+    // Fetch a short-lived, scoped SSE token instead of exposing the main JWT in the URL
+    let sseToken: string;
+    try {
+      const { sse_token } = await apiClient.post<{ sse_token: string }>(`/api/analyze/token/${profileId}`);
+      sseToken = sse_token;
+    } catch (err) {
+      setAnalyzing(false);
+      const message = err instanceof Error ? err.message : "Failed to start analysis";
+      if (message.toLowerCase().includes("once per day") || message.toLowerCase().includes("rate limit") || message.includes("24 hours")) {
+        setRateLimitMessage(message);
+      }
+      return;
+    }
+
     const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
-    const eventSource = new EventSource(`${API_BASE}/api/analyze/stream/${profileId}?token=${token}`);
+    const eventSource = new EventSource(`${API_BASE}/api/analyze/stream/${profileId}?token=${sseToken}`);
+    setEventSourceRef(eventSource);
 
     eventSource.addEventListener("stage", (e) => {
       const data = JSON.parse(e.data);
       setStage(data.stage, data.status);
     });
 
-    eventSource.addEventListener("complete", () => {
+    const cleanup = () => {
       setAnalyzing(false);
-      eventSource.close();
-    });
-
-    eventSource.addEventListener("error", () => {
-      setAnalyzing(false);
-      eventSource.close();
-    });
-
-    eventSource.onerror = () => {
-      setAnalyzing(false);
+      setEventSourceRef(null);
       eventSource.close();
     };
+
+    eventSource.addEventListener("complete", cleanup);
+    eventSource.addEventListener("error", cleanup);
+    eventSource.onerror = cleanup;
+  };
+
+  const stopAnalysis = () => {
+    if (eventSourceRef) {
+      eventSourceRef.close();
+      setEventSourceRef(null);
+    }
+    setAnalyzing(false);
   };
 
   const stageIcons: Record<string, React.ReactNode> = {
@@ -362,24 +393,32 @@ export default function EvidencePage() {
                 ))}
               </div>
 
-              <Button
-                onClick={startAnalysis}
-                disabled={analyzing}
-                className="w-full"
-                aria-busy={analyzing}
-              >
-                {analyzing ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" aria-hidden="true" />
-                    Analyzing...
-                  </>
-                ) : (
-                  <>
-                    <Play className="h-4 w-4 mr-2" aria-hidden="true" />
-                    Start Analysis
-                  </>
-                )}
-              </Button>
+              {rateLimitMessage && (
+                <div className="rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-3 text-sm text-amber-800 dark:text-amber-200">
+                  <AlertCircle className="h-4 w-4 inline mr-1.5" aria-hidden="true" />
+                  {rateLimitMessage}
+                </div>
+              )}
+
+              {analyzing ? (
+                <Button
+                  onClick={stopAnalysis}
+                  variant="destructive"
+                  className="w-full"
+                >
+                  <AlertCircle className="h-4 w-4 mr-2" aria-hidden="true" />
+                  Stop Analysis
+                </Button>
+              ) : (
+                <Button
+                  onClick={startAnalysis}
+                  className="w-full"
+                  disabled={!!rateLimitMessage}
+                >
+                  <Play className="h-4 w-4 mr-2" aria-hidden="true" />
+                  Start Analysis
+                </Button>
+              )}
             </CardContent>
           </Card>
         </section>
@@ -387,7 +426,10 @@ export default function EvidencePage() {
 
       <ConsentModal
         open={consentModal.open}
-        onOpenChange={(open) => setConsentModal((prev) => ({ ...prev, open }))}
+        onOpenChange={(open) => {
+          setConsentModal((prev) => ({ ...prev, open }));
+          if (!open) setPendingFile(null);
+        }}
         sourceType={consentModal.type}
         sourceName={consentModal.name}
         onConsent={handleConsentGranted}

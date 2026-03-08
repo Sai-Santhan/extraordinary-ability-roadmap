@@ -35,6 +35,24 @@ def decode_token(token: str) -> dict:
     return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
 
+def create_sse_token(user_id: str, profile_id: str) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(seconds=60)
+    return jwt.encode(
+        {"sub": user_id, "profile_id": profile_id, "purpose": "sse", "exp": expire},
+        SECRET_KEY,
+        algorithm=ALGORITHM,
+    )
+
+
+def decode_sse_token(token: str, profile_id: str) -> str:
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    if payload.get("purpose") != "sse":
+        raise ValueError("Invalid token purpose")
+    if payload.get("profile_id") != profile_id:
+        raise ValueError("Token not valid for this profile")
+    return payload["sub"]
+
+
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db),

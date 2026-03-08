@@ -12,7 +12,7 @@ const features = [
   {
     icon: BarChart3,
     title: "AI-Powered Assessment",
-    description: "Claude AI scores your evidence against EB-1A, NIW, or O-1 criteria with calibrated confidence levels.",
+    description: "Claude AI scores your evidence against EB-1A, EB-1B, EB-1C, NIW, or O-1 criteria with calibrated confidence levels.",
   },
   {
     icon: Compass,
@@ -22,7 +22,7 @@ const features = [
   {
     icon: Shield,
     title: "Criteria Dashboard",
-    description: "Interactive radar chart maps your evidence to all 10 USCIS criteria. See strengths, gaps, and next steps.",
+    description: "Interactive radar chart maps your evidence to USCIS criteria for your pathway. See strengths, gaps, and next steps.",
   },
   {
     icon: FileDown,
@@ -53,7 +53,7 @@ export default function LandingPage() {
           <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center" aria-hidden="true">
             <Compass className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="text-lg sm:text-xl font-semibold tracking-tight">EB1A Immigration Roadmap</span>
+          <span className="text-lg sm:text-xl font-semibold tracking-tight">Immigration Roadmap</span>
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
           <Link href="/login">
@@ -78,7 +78,7 @@ export default function LandingPage() {
         <p className="mt-4 sm:mt-6 text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed">
           Aggregate your scattered career achievements, score them against USCIS
           criteria with AI, and get a personalized plan to qualify for EB-1A,
-          NIW, or O-1 — faster.
+          EB-1B, EB-1C, NIW, or O-1 — faster.
         </p>
         <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
           <Link href="/register" className="w-full sm:w-auto">

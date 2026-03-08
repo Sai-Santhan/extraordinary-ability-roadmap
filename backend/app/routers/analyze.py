@@ -1,16 +1,60 @@
 import json
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sse_starlette.sse import EventSourceResponse
 
-from app.auth import decode_token
+from app.auth import create_sse_token, decode_sse_token, get_current_user
 from app.database import get_db
 from app.models.database import ImmigrationProfileDB, User
 from app.agents.pipeline import run_pipeline
 
 router = APIRouter(prefix="/api/analyze", tags=["analyze"])
+
+
+@router.post("/token/{profile_id}")
+async def get_sse_token(
+    profile_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(ImmigrationProfileDB).where(
+            ImmigrationProfileDB.id == profile_id,
+            ImmigrationProfileDB.user_id == user.id,
+        )
+    )
+    profile = result.scalar_one_or_none()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    # Rate limit: 1 analysis per day
+    now = datetime.now(timezone.utc)
+    if profile.last_analysis_run:
+        last_run = profile.last_analysis_run
+        if last_run.tzinfo is None:
+            last_run = last_run.replace(tzinfo=timezone.utc)
+        time_since = now - last_run
+        if time_since < timedelta(hours=24):
+            retry_after = last_run + timedelta(hours=24)
+            raise HTTPException(
+                status_code=429,
+                detail={
+                    "message": "You can only run analysis once per day",
+                    "retry_after": retry_after.isoformat(),
+                    "limit_type": "analysis",
+                },
+            )
+
+    # Mark analysis start time and clear pathway changed flag
+    profile.last_analysis_run = now
+    profile.pathway_changed_since_analysis = False
+    await db.commit()
+
+    token = create_sse_token(str(user.id), profile_id)
+    return {"sse_token": token}
 
 
 @router.get("/stream/{profile_id}")
@@ -19,15 +63,12 @@ async def stream_analysis(
     token: str = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
-    # SSE endpoints can't use Authorization headers from EventSource,
-    # so we accept the token as a query parameter
     if not token:
         raise HTTPException(status_code=401, detail="Token required")
     try:
-        payload = decode_token(token)
-        user_id = payload["sub"]
+        user_id = decode_sse_token(token, profile_id)
     except Exception:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
 
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()

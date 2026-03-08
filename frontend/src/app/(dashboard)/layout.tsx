@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/lib/store";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
@@ -13,7 +13,8 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { userName, isAuthenticated } = useAuthStore();
+  const pathname = usePathname();
+  const { userName, isAuthenticated, onboardingCompleted } = useAuthStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -21,10 +22,13 @@ export default function DashboardLayout({
   }, []);
 
   useEffect(() => {
-    if (mounted && !isAuthenticated()) {
+    if (!mounted) return;
+    if (!isAuthenticated()) {
       router.push("/login");
+    } else if (onboardingCompleted === false && pathname !== "/onboarding") {
+      router.push("/onboarding");
     }
-  }, [mounted, isAuthenticated, router]);
+  }, [mounted, isAuthenticated, onboardingCompleted, pathname, router]);
 
   // Render nothing until client hydration completes (avoids server/client mismatch)
   if (!mounted) return null;

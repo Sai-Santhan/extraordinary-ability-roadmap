@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -5,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import get_current_user
 from app.database import get_db
 from app.models.database import ImmigrationProfileDB, User
+from app.models.schemas import PathwayUpdateRequest, ImmigrationTarget
 
 router = APIRouter(prefix="/api/profiles", tags=["profiles"])
 
@@ -34,9 +37,10 @@ async def list_profiles(
         {
             "id": str(p.id),
             "status": p.status,
-            "profile_data": p.profile_data,
-            "assessment_data": p.assessment_data,
-            "roadmap_data": p.roadmap_data,
+            "target_pathway": p.target_pathway,
+            "pathway_changed_since_analysis": p.pathway_changed_since_analysis,
+            "last_pathway_switch": p.last_pathway_switch.isoformat() if p.last_pathway_switch else None,
+            "last_analysis_run": p.last_analysis_run.isoformat() if p.last_analysis_run else None,
             "created_at": p.created_at.isoformat() if p.created_at else None,
             "updated_at": p.updated_at.isoformat() if p.updated_at else None,
         }
@@ -62,11 +66,67 @@ async def get_profile(
     return {
         "id": str(profile.id),
         "status": profile.status,
+        "target_pathway": profile.target_pathway,
+        "pathway_changed_since_analysis": profile.pathway_changed_since_analysis,
+        "last_pathway_switch": profile.last_pathway_switch.isoformat() if profile.last_pathway_switch else None,
+        "last_analysis_run": profile.last_analysis_run.isoformat() if profile.last_analysis_run else None,
         "profile_data": profile.profile_data,
         "assessment_data": profile.assessment_data,
         "roadmap_data": profile.roadmap_data,
         "created_at": profile.created_at.isoformat() if profile.created_at else None,
         "updated_at": profile.updated_at.isoformat() if profile.updated_at else None,
+    }
+
+
+@router.patch("/{profile_id}/pathway")
+async def update_pathway(
+    profile_id: str,
+    data: PathwayUpdateRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(ImmigrationProfileDB).where(
+            ImmigrationProfileDB.id == profile_id,
+            ImmigrationProfileDB.user_id == user.id,
+        )
+    )
+    profile = result.scalar_one_or_none()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    # Rate limit: 1 switch per day
+    now = datetime.now(timezone.utc)
+    if profile.last_pathway_switch:
+        last_switch = profile.last_pathway_switch
+        if last_switch.tzinfo is None:
+            last_switch = last_switch.replace(tzinfo=timezone.utc)
+        time_since = now - last_switch
+        if time_since < timedelta(hours=24):
+            retry_after = last_switch + timedelta(hours=24)
+            raise HTTPException(
+                status_code=429,
+                detail={
+                    "message": "You can only switch pathways once per day",
+                    "retry_after": retry_after.isoformat(),
+                    "limit_type": "pathway_switch",
+                },
+            )
+
+    profile.target_pathway = data.pathway.value
+    profile.pathway_changed_since_analysis = True
+    profile.last_pathway_switch = now
+
+    # Also update profile_data if it exists
+    if profile.profile_data and isinstance(profile.profile_data, dict):
+        profile.profile_data = {**profile.profile_data, "target_pathway": data.pathway.value}
+
+    await db.commit()
+    return {
+        "id": str(profile.id),
+        "target_pathway": profile.target_pathway,
+        "pathway_changed_since_analysis": True,
+        "last_pathway_switch": profile.last_pathway_switch.isoformat(),
     }
 
 

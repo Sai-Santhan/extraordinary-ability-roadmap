@@ -5,13 +5,24 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Upload, BarChart3, Route, FileDown, ArrowRight } from "lucide-react";
+import { Upload, BarChart3, Route, FileDown, ArrowRight, AlertCircle } from "lucide-react";
 import { apiClient } from "@/lib/api";
 import { useAuthStore } from "@/lib/store";
+
+const PATHWAY_NAMES: Record<string, string> = {
+  eb1a: "EB-1A",
+  eb1b: "EB-1B",
+  eb1c: "EB-1C",
+  niw: "NIW",
+  o1: "O-1",
+};
 
 interface Profile {
   id: string;
   status: string;
+  target_pathway: string | null;
+  pathway_changed_since_analysis: boolean;
+  last_analysis_run: string | null;
   profile_data: Record<string, unknown> | null;
   assessment_data: Record<string, unknown> | null;
   roadmap_data: Record<string, unknown> | null;
@@ -34,6 +45,8 @@ export default function DashboardPage() {
   const latestProfile = profiles[0];
   const status = latestProfile?.status || "none";
   const criteriaMetCount = (latestProfile?.assessment_data as Record<string, unknown>)?.criteria_met_count as number | undefined;
+  const pathway = latestProfile?.target_pathway;
+  const pathwayChanged = latestProfile?.pathway_changed_since_analysis;
 
   const statusBadge = {
     none: { label: "No profile", variant: "secondary" as const },
@@ -61,6 +74,20 @@ export default function DashboardPage() {
         </p>
       </div>
 
+      {/* Pathway changed banner */}
+      {pathwayChanged && (
+        <div className="flex items-center gap-3 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20 p-4">
+          <AlertCircle className="h-5 w-5 text-amber-600 shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-medium">Pathway changed to {PATHWAY_NAMES[pathway || ""] || pathway}</p>
+            <p className="text-xs text-muted-foreground">Re-run analysis from the Evidence page to update your criteria assessment and roadmap.</p>
+          </div>
+          <Link href="/dashboard/evidence">
+            <Button size="sm" variant="outline">Re-run Analysis</Button>
+          </Link>
+        </div>
+      )}
+
       {/* Status Card */}
       <Card>
         <CardHeader>
@@ -73,7 +100,12 @@ export default function DashboardPage() {
                   : "Create a profile to get started"}
               </CardDescription>
             </div>
-            <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
+            <div className="flex items-center gap-2">
+              {pathway && (
+                <Badge variant="outline">{PATHWAY_NAMES[pathway] || pathway.toUpperCase()}</Badge>
+              )}
+              <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
+            </div>
           </div>
         </CardHeader>
         {status === "complete" && criteriaMetCount !== undefined && (
