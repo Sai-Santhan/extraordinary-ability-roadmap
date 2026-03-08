@@ -1,0 +1,65 @@
+DR. PRIYA SHARMA
+Senior Research Scientist | Google DeepMind
+priya.sharma@email.com | github.com/priyasharma-ai
+
+EDUCATION
+Ph.D. in Computer Science, Stanford University, 2020
+  Dissertation: "Attention Mechanisms for Multi-Modal Reasoning"
+  Advisor: Prof. James Chen
+M.S. in Computer Science, IIT Bombay, 2016
+B.Tech in Computer Science, IIT Bombay, 2014
+
+CURRENT POSITION
+Senior Research Scientist, Google DeepMind (2022 - present)
+- Leading a team of 4 researchers on multi-modal language models
+- Developed novel attention architecture adopted by 3 product teams
+- Published 8 papers in top-tier venues since joining
+
+PREVIOUS POSITIONS
+Research Scientist, Google Brain (2020 - 2022)
+- Core contributor to PaLM model architecture
+- 5 first-author publications in NeurIPS, ICML, ACL
+
+Research Intern, Meta AI (FAIR) (Summer 2019)
+- Worked on cross-lingual transfer learning
+- Paper accepted at EMNLP 2019
+
+IMMIGRATION STATUS
+H-1B visa holder
+Country of birth: India
+
+PUBLICATIONS (Selected - 25 total)
+1. "ScaleFormer: Efficient Multi-Scale Attention for Language Models" - NeurIPS 2025 (Oral), Citations: 187
+2. "Cross-Modal Reasoning with Sparse Attention" - ICML 2025, Citations: 124
+3. "Dynamic Token Pruning for Efficient Inference" - ACL 2024, Citations: 203
+4. "Multi-Modal Chain-of-Thought Prompting" - NeurIPS 2024, Citations: 312
+5. "Adaptive Compute for Language Generation" - ICLR 2024, Citations: 156
+6. "Hierarchical Attention Networks for Document Understanding" - ACL 2023, Citations: 289
+7. "Efficient Training of Large Language Models with Mixed Precision" - ICML 2023, Citations: 198
+8. "Self-Supervised Pre-training for Code Generation" - EMNLP 2023, Citations: 167
+9. "Retrieval-Augmented Generation for Knowledge-Intensive Tasks" - NeurIPS 2022 (Spotlight), Citations: 445
+10. "Cross-Lingual Transfer with Shared Representations" - EMNLP 2019, Citations: 234
+... (15 more publications in top venues)
+
+TOTAL CITATIONS: 4,287
+H-INDEX: 15
+i10-INDEX: 22
+
+PEER REVIEW & JUDGING
+- Program Committee Member, NeurIPS (2023, 2024, 2025)
+- Program Committee Member, ICML (2024, 2025)
+- Program Committee Member, ACL (2022, 2023, 2024, 2025)
+- Reviewer, Nature Machine Intelligence (2024)
+- Reviewer, JMLR (2022-present)
+
+SPEAKING ENGAGEMENTS
+- Keynote: "The Future of Multi-Modal AI" - AI Summit San Francisco (2025)
+- Invited Talk: "Efficient Attention Mechanisms" - MIT CSAIL (2024)
+- Tutorial: "Scaling Language Models" - NeurIPS 2024
+- Panel: "Responsible AI Development" - ACM FAccT 2024
+
+SALARY
+Total compensation: $485,000/year (base + equity)
+
+SKILLS
+Python, PyTorch, JAX, TensorFlow, CUDA, Large Language Models, Multi-Modal AI, Attention Mechanisms

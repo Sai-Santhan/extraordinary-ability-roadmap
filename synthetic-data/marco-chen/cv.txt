@@ -1,0 +1,52 @@
+MARCO CHEN
+Staff Software Engineer | Meta (formerly Facebook)
+marco.chen@email.com | github.com/marcochen
+
+EDUCATION
+M.S. in Computer Science, Carnegie Mellon University, 2018
+B.S. in Computer Science, Tsinghua University, 2016
+
+CURRENT POSITION
+Staff Software Engineer, Meta (2021 - present)
+- Tech lead for distributed systems infrastructure serving 3 billion users
+- Designed and implemented real-time data pipeline processing 50TB/day
+- Led migration of legacy monolith to microservices, reducing latency by 40%
+- Mentoring 6 engineers; promoted 2 to senior level
+- Critical role in Meta's messaging infrastructure team
+
+PREVIOUS POSITIONS
+Senior Software Engineer, Google (2018 - 2021)
+- Core team member on Google Cloud Pub/Sub
+- Implemented exactly-once delivery semantics, serving 10,000+ enterprise customers
+- 2 patents on distributed message ordering algorithms
+
+Software Engineer, Alibaba Cloud (2016 - 2018)
+- Built stream processing engine handling 1M events/second
+- 1 patent on adaptive load balancing for cloud environments
+
+IMMIGRATION STATUS
+H-1B visa holder
+Country of birth: China
+
+PATENTS
+1. "Method for Guaranteed Message Ordering in Distributed Pub/Sub Systems" - US Patent 11,234,567 (2020)
+2. "Adaptive Partitioning for Fault-Tolerant Message Delivery" - US Patent 11,345,678 (2021)
+3. "Dynamic Load Balancing in Multi-Tenant Cloud Environments" - US Patent 11,456,789 (2019)
+
+OPEN SOURCE CONTRIBUTIONS
+- github.com/marcochen/fastqueue - High-performance message queue library (847 stars, 120 forks)
+- github.com/marcochen/distrib-tools - Distributed systems testing toolkit (312 stars)
+- Contributor to Apache Kafka (15 merged PRs)
+- Contributor to etcd (8 merged PRs)
+
+GITHUB METRICS
+Total stars: 1,200+
+Contributions last year: 847
+Pull request reviews: 200+
+
+SPEAKING
+- "Building Reliable Distributed Systems at Scale" - Meta Internal Tech Talk (2024)
+- "Exactly-Once Semantics in Practice" - Strange Loop 2023
+
+SALARY
+Total compensation: $520,000/year (base + equity + bonus)

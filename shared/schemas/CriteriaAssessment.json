@@ -1,0 +1,155 @@
+{
+  "$defs": {
+    "ConfidenceLevel": {
+      "properties": {
+        "data_confidence": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Data Confidence",
+          "type": "integer"
+        },
+        "criteria_match": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Criteria Match",
+          "type": "integer"
+        },
+        "overall": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Overall",
+          "type": "integer"
+        },
+        "reasoning": {
+          "title": "Reasoning",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data_confidence",
+        "criteria_match",
+        "overall",
+        "reasoning"
+      ],
+      "title": "ConfidenceLevel",
+      "type": "object"
+    },
+    "CriterionScore": {
+      "properties": {
+        "criterion_number": {
+          "title": "Criterion Number",
+          "type": "integer"
+        },
+        "criterion_name": {
+          "title": "Criterion Name",
+          "type": "string"
+        },
+        "evidence_found": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Found",
+          "type": "array"
+        },
+        "strength": {
+          "title": "Strength",
+          "type": "string"
+        },
+        "confidence": {
+          "$ref": "#/$defs/ConfidenceLevel"
+        },
+        "gaps": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Gaps",
+          "type": "array"
+        },
+        "priority_actions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Priority Actions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "criterion_number",
+        "criterion_name",
+        "evidence_found",
+        "strength",
+        "confidence",
+        "gaps",
+        "priority_actions"
+      ],
+      "title": "CriterionScore",
+      "type": "object"
+    },
+    "ImmigrationTarget": {
+      "enum": [
+        "eb1a",
+        "niw",
+        "o1"
+      ],
+      "title": "ImmigrationTarget",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "pathway": {
+      "$ref": "#/$defs/ImmigrationTarget"
+    },
+    "criteria_scores": {
+      "items": {
+        "$ref": "#/$defs/CriterionScore"
+      },
+      "title": "Criteria Scores",
+      "type": "array"
+    },
+    "criteria_met_count": {
+      "title": "Criteria Met Count",
+      "type": "integer"
+    },
+    "criteria_close_count": {
+      "title": "Criteria Close Count",
+      "type": "integer"
+    },
+    "overall_readiness": {
+      "title": "Overall Readiness",
+      "type": "string"
+    },
+    "strongest_criteria": {
+      "items": {
+        "type": "integer"
+      },
+      "title": "Strongest Criteria",
+      "type": "array"
+    },
+    "weakest_criteria": {
+      "items": {
+        "type": "integer"
+      },
+      "title": "Weakest Criteria",
+      "type": "array"
+    },
+    "recommended_focus": {
+      "items": {
+        "type": "integer"
+      },
+      "title": "Recommended Focus",
+      "type": "array"
+    }
+  },
+  "required": [
+    "pathway",
+    "criteria_scores",
+    "criteria_met_count",
+    "criteria_close_count",
+    "overall_readiness",
+    "strongest_criteria",
+    "weakest_criteria",
+    "recommended_focus"
+  ],
+  "title": "CriteriaAssessment",
+  "type": "object"
+}

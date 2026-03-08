@@ -1,0 +1,80 @@
+{
+  "$defs": {
+    "EvidenceSource": {
+      "enum": [
+        "cv",
+        "scholar",
+        "github",
+        "gmail",
+        "linkedin",
+        "chatgpt_export",
+        "calendar",
+        "manual"
+      ],
+      "title": "EvidenceSource",
+      "type": "string"
+    },
+    "RawSourceData": {
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/EvidenceSource"
+        },
+        "raw_text": {
+          "title": "Raw Text",
+          "type": "string"
+        },
+        "file_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "File Name"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "source",
+        "raw_text"
+      ],
+      "title": "RawSourceData",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/RawSourceData"
+      },
+      "title": "Sources",
+      "type": "array"
+    },
+    "total_files_processed": {
+      "title": "Total Files Processed",
+      "type": "integer"
+    },
+    "extraction_notes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Extraction Notes",
+      "type": "array"
+    }
+  },
+  "required": [
+    "sources",
+    "total_files_processed"
+  ],
+  "title": "RawCareerData",
+  "type": "object"
+}

@@ -1,0 +1,115 @@
+{
+  "name": "Dr. Priya Sharma",
+  "affiliation": "Google DeepMind",
+  "h_index": 15,
+  "i10_index": 22,
+  "total_citations": 4287,
+  "papers": [
+    {
+      "title": "ScaleFormer: Efficient Multi-Scale Attention for Language Models",
+      "venue": "NeurIPS 2025",
+      "year": 2025,
+      "citations": 187,
+      "authors": [
+        "Priya Sharma",
+        "Alex Kim",
+        "James Chen"
+      ]
+    },
+    {
+      "title": "Cross-Modal Reasoning with Sparse Attention",
+      "venue": "ICML 2025",
+      "year": 2025,
+      "citations": 124,
+      "authors": [
+        "Priya Sharma",
+        "Wei Li"
+      ]
+    },
+    {
+      "title": "Dynamic Token Pruning for Efficient Inference",
+      "venue": "ACL 2024",
+      "year": 2024,
+      "citations": 203,
+      "authors": [
+        "Priya Sharma",
+        "Raj Patel",
+        "Ming Zhou"
+      ]
+    },
+    {
+      "title": "Multi-Modal Chain-of-Thought Prompting",
+      "venue": "NeurIPS 2024",
+      "year": 2024,
+      "citations": 312,
+      "authors": [
+        "Priya Sharma",
+        "Sarah Johnson",
+        "David Lee"
+      ]
+    },
+    {
+      "title": "Adaptive Compute for Language Generation",
+      "venue": "ICLR 2024",
+      "year": 2024,
+      "citations": 156,
+      "authors": [
+        "Priya Sharma",
+        "Tom Brown"
+      ]
+    },
+    {
+      "title": "Hierarchical Attention Networks for Document Understanding",
+      "venue": "ACL 2023",
+      "year": 2023,
+      "citations": 289,
+      "authors": [
+        "Priya Sharma",
+        "Lisa Wang"
+      ]
+    },
+    {
+      "title": "Efficient Training of Large Language Models with Mixed Precision",
+      "venue": "ICML 2023",
+      "year": 2023,
+      "citations": 198,
+      "authors": [
+        "Priya Sharma",
+        "Mark Davis",
+        "Anna Lee"
+      ]
+    },
+    {
+      "title": "Self-Supervised Pre-training for Code Generation",
+      "venue": "EMNLP 2023",
+      "year": 2023,
+      "citations": 167,
+      "authors": [
+        "Priya Sharma",
+        "Carlos Rodriguez"
+      ]
+    },
+    {
+      "title": "Retrieval-Augmented Generation for Knowledge-Intensive Tasks",
+      "venue": "NeurIPS 2022",
+      "year": 2022,
+      "citations": 445,
+      "authors": [
+        "Priya Sharma",
+        "James Chen",
+        "Wei Li",
+        "Raj Patel"
+      ]
+    },
+    {
+      "title": "Cross-Lingual Transfer with Shared Representations",
+      "venue": "EMNLP 2019",
+      "year": 2019,
+      "citations": 234,
+      "authors": [
+        "Priya Sharma",
+        "Pierre Dupont"
+      ]
+    }
+  ]
+}

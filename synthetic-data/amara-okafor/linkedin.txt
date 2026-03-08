@@ -1,0 +1,45 @@
+Amara Okafor
+CEO & Co-Founder at DataBridge AI | Y Combinator W22 | Forbes 30 Under 30
+
+New York City Metropolitan Area
+
+Experience
+
+CEO & Co-Founder
+DataBridge AI
+Jun 2021 - Present
+New York, NY
+- AI-powered data integration platform for healthcare
+- Y Combinator W22 ($500K + $2M seed)
+- 45 employees, $4.2M ARR, 120 enterprise customers
+- Processing 10M+ patient records daily
+
+Data Scientist
+McKinsey & Company
+Jul 2020 - May 2021
+New York, NY
+- AI/ML projects for healthcare clients
+- Reduced hospital readmissions by 23%
+
+Education
+
+Columbia University
+M.S., Data Science, 2020
+
+University of Lagos
+B.Sc., Computer Science, 2018
+
+Honors & Awards
+- Forbes 30 Under 30 (2024)
+- TechCrunch Disrupt Finalist (2023)
+- Y Combinator W22
+- Google for Startups Black Founders Fund
+
+Skills
+Machine Learning, Healthcare AI, Data Integration, Python, Leadership, Fundraising
+
+Recommendations
+
+"Amara is a visionary founder who combines deep technical expertise with exceptional business acumen. DataBridge AI is transforming how hospitals share data." - Michael Torres, Partner at Y Combinator
+
+"Working with Amara at McKinsey, I saw her ability to translate complex ML concepts into business value. She's one of the most impressive leaders I've encountered." - Jennifer Wu, Senior Partner at McKinsey

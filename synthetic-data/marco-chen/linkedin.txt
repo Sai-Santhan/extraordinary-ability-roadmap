@@ -1,0 +1,47 @@
+Marco Chen
+Staff Software Engineer at Meta
+
+San Francisco Bay Area
+
+Experience
+
+Staff Software Engineer
+Meta
+Jan 2021 - Present (5 years)
+San Francisco, California
+- Tech lead for distributed systems infrastructure
+- Designed real-time data pipeline processing 50TB/day
+- Led microservices migration reducing latency by 40%
+- Critical role in messaging infrastructure serving 3B users
+
+Senior Software Engineer
+Google
+Aug 2018 - Dec 2020 (2 years 5 months)
+Mountain View, California
+- Core team on Google Cloud Pub/Sub
+- Implemented exactly-once delivery semantics
+- 2 patents on distributed message ordering
+
+Software Engineer
+Alibaba Cloud
+Jul 2016 - Jul 2018 (2 years)
+Hangzhou, China
+- Built stream processing engine (1M events/sec)
+- 1 patent on adaptive load balancing
+
+Education
+
+Carnegie Mellon University
+M.S., Computer Science, 2018
+
+Tsinghua University
+B.S., Computer Science, 2016
+
+Skills
+Distributed Systems, Rust, Go, Python, Kafka, Kubernetes, System Design, Cloud Infrastructure
+
+Recommendations
+
+"Marco is one of the most talented distributed systems engineers I've worked with. His design for our pub/sub exactly-once delivery system was elegant and battle-tested at massive scale." - Sarah Kim, Engineering Director at Google
+
+"Marco's technical leadership on our messaging infrastructure has been exceptional. He architected solutions that serve billions of users with remarkable reliability." - David Park, VP of Engineering at Meta

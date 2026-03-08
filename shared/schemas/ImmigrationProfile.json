@@ -1,0 +1,541 @@
+{
+  "$defs": {
+    "Award": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "granting_organization": {
+          "title": "Granting Organization",
+          "type": "string"
+        },
+        "year": {
+          "title": "Year",
+          "type": "integer"
+        },
+        "scope": {
+          "title": "Scope",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "source": {
+          "$ref": "#/$defs/EvidenceSource"
+        },
+        "confidence": {
+          "$ref": "#/$defs/ConfidenceLevel"
+        }
+      },
+      "required": [
+        "name",
+        "granting_organization",
+        "year",
+        "scope",
+        "source",
+        "confidence"
+      ],
+      "title": "Award",
+      "type": "object"
+    },
+    "ConfidenceLevel": {
+      "properties": {
+        "data_confidence": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Data Confidence",
+          "type": "integer"
+        },
+        "criteria_match": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Criteria Match",
+          "type": "integer"
+        },
+        "overall": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Overall",
+          "type": "integer"
+        },
+        "reasoning": {
+          "title": "Reasoning",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data_confidence",
+        "criteria_match",
+        "overall",
+        "reasoning"
+      ],
+      "title": "ConfidenceLevel",
+      "type": "object"
+    },
+    "EvidenceSource": {
+      "enum": [
+        "cv",
+        "scholar",
+        "github",
+        "gmail",
+        "linkedin",
+        "chatgpt_export",
+        "calendar",
+        "manual"
+      ],
+      "title": "EvidenceSource",
+      "type": "string"
+    },
+    "ImmigrationTarget": {
+      "enum": [
+        "eb1a",
+        "niw",
+        "o1"
+      ],
+      "title": "ImmigrationTarget",
+      "type": "string"
+    },
+    "JudgingRole": {
+      "properties": {
+        "role": {
+          "title": "Role",
+          "type": "string"
+        },
+        "organization": {
+          "title": "Organization",
+          "type": "string"
+        },
+        "year": {
+          "title": "Year",
+          "type": "integer"
+        },
+        "documented": {
+          "title": "Documented",
+          "type": "boolean"
+        },
+        "source": {
+          "$ref": "#/$defs/EvidenceSource"
+        },
+        "confidence": {
+          "$ref": "#/$defs/ConfidenceLevel"
+        }
+      },
+      "required": [
+        "role",
+        "organization",
+        "year",
+        "documented",
+        "source",
+        "confidence"
+      ],
+      "title": "JudgingRole",
+      "type": "object"
+    },
+    "LeadershipRole": {
+      "properties": {
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "organization": {
+          "title": "Organization",
+          "type": "string"
+        },
+        "start_date": {
+          "format": "date",
+          "title": "Start Date",
+          "type": "string"
+        },
+        "end_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Date"
+        },
+        "is_distinguished_org": {
+          "title": "Is Distinguished Org",
+          "type": "boolean"
+        },
+        "source": {
+          "$ref": "#/$defs/EvidenceSource"
+        },
+        "confidence": {
+          "$ref": "#/$defs/ConfidenceLevel"
+        }
+      },
+      "required": [
+        "title",
+        "organization",
+        "start_date",
+        "is_distinguished_org",
+        "source",
+        "confidence"
+      ],
+      "title": "LeadershipRole",
+      "type": "object"
+    },
+    "MediaCoverage": {
+      "properties": {
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "outlet": {
+          "title": "Outlet",
+          "type": "string"
+        },
+        "date": {
+          "default": null,
+          "title": "Date",
+          "type": "null"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "about_person": {
+          "title": "About Person",
+          "type": "boolean"
+        },
+        "source": {
+          "$ref": "#/$defs/EvidenceSource"
+        },
+        "confidence": {
+          "$ref": "#/$defs/ConfidenceLevel"
+        }
+      },
+      "required": [
+        "title",
+        "outlet",
+        "about_person",
+        "source",
+        "confidence"
+      ],
+      "title": "MediaCoverage",
+      "type": "object"
+    },
+    "Publication": {
+      "properties": {
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "venue": {
+          "title": "Venue",
+          "type": "string"
+        },
+        "year": {
+          "title": "Year",
+          "type": "integer"
+        },
+        "citation_count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Citation Count"
+        },
+        "co_authors": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Co Authors",
+          "type": "array"
+        },
+        "doi": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Doi"
+        },
+        "source": {
+          "$ref": "#/$defs/EvidenceSource"
+        },
+        "confidence": {
+          "$ref": "#/$defs/ConfidenceLevel"
+        }
+      },
+      "required": [
+        "title",
+        "venue",
+        "year",
+        "source",
+        "confidence"
+      ],
+      "title": "Publication",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "current_visa_status": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Current Visa Status"
+    },
+    "country_of_birth": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Country Of Birth"
+    },
+    "target_pathway": {
+      "$ref": "#/$defs/ImmigrationTarget"
+    },
+    "target_timeline_years": {
+      "maximum": 10,
+      "minimum": 1,
+      "title": "Target Timeline Years",
+      "type": "integer"
+    },
+    "current_role": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Current Role"
+    },
+    "current_employer": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Current Employer"
+    },
+    "years_experience": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Years Experience"
+    },
+    "field_of_expertise": {
+      "title": "Field Of Expertise",
+      "type": "string"
+    },
+    "publications": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Publication"
+      },
+      "title": "Publications",
+      "type": "array"
+    },
+    "awards": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Award"
+      },
+      "title": "Awards",
+      "type": "array"
+    },
+    "judging_roles": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/JudgingRole"
+      },
+      "title": "Judging Roles",
+      "type": "array"
+    },
+    "media_coverage": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/MediaCoverage"
+      },
+      "title": "Media Coverage",
+      "type": "array"
+    },
+    "leadership_roles": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/LeadershipRole"
+      },
+      "title": "Leadership Roles",
+      "type": "array"
+    },
+    "h_index": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "H Index"
+    },
+    "total_citations": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Total Citations"
+    },
+    "i10_index": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "I10 Index"
+    },
+    "github_stars": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Github Stars"
+    },
+    "github_contributions_last_year": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Github Contributions Last Year"
+    },
+    "github_pr_reviews": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Github Pr Reviews"
+    },
+    "notable_repos": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Notable Repos",
+      "type": "array"
+    },
+    "selective_memberships": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Selective Memberships",
+      "type": "array"
+    },
+    "compensation_percentile": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Compensation Percentile"
+    },
+    "data_sources": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/EvidenceSource"
+      },
+      "title": "Data Sources",
+      "type": "array"
+    }
+  },
+  "required": [
+    "name",
+    "target_pathway",
+    "target_timeline_years",
+    "field_of_expertise"
+  ],
+  "title": "ImmigrationProfile",
+  "type": "object"
+}

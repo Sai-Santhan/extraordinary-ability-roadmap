@@ -1,0 +1,39 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Synthetic Data Generator//EN
+BEGIN:VEVENT
+SUMMARY:Keynote: The Future of Multi-Modal AI - AI Summit SF
+DTSTART:20250615T090000Z
+DTEND:20250615T100000Z
+LOCATION:Moscone Center, San Francisco, CA
+DESCRIPTION:Keynote address at AI Summit San Francisco 2025. Topic: The Future of Multi-Modal AI.
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Invited Talk: Efficient Attention Mechanisms - MIT CSAIL
+DTSTART:20241015T140000Z
+DTEND:20241015T153000Z
+LOCATION:MIT Stata Center, Cambridge, MA
+DESCRIPTION:Invited research talk at MIT CSAIL. Presenting recent work on efficient attention mechanisms for large language models.
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Tutorial: Scaling Language Models - NeurIPS 2024
+DTSTART:20241209T090000Z
+DTEND:20241209T120000Z
+LOCATION:Vancouver Convention Centre, Vancouver, BC
+DESCRIPTION:3-hour tutorial at NeurIPS 2024 on scaling language models from architecture to deployment.
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Panel: Responsible AI Development - ACM FAccT 2024
+DTSTART:20240604T110000Z
+DTEND:20240604T123000Z
+LOCATION:Rio de Janeiro, Brazil
+DESCRIPTION:Panel discussion on responsible AI development practices at ACM Conference on Fairness, Accountability, and Transparency.
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:NeurIPS 2025 PC Meeting
+DTSTART:20250715T100000Z
+DTEND:20250715T160000Z
+LOCATION:Virtual
+DESCRIPTION:Program Committee meeting for NeurIPS 2025. Discuss borderline papers and final decisions.
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,129 @@
+{
+  "$defs": {
+    "ImmigrationTarget": {
+      "enum": [
+        "eb1a",
+        "niw",
+        "o1"
+      ],
+      "title": "ImmigrationTarget",
+      "type": "string"
+    },
+    "QuarterlyMilestone": {
+      "properties": {
+        "quarter": {
+          "title": "Quarter",
+          "type": "string"
+        },
+        "actions": {
+          "items": {
+            "$ref": "#/$defs/RoadmapAction"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "expected_criteria_improvement": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Expected Criteria Improvement",
+          "type": "object"
+        }
+      },
+      "required": [
+        "quarter",
+        "actions",
+        "expected_criteria_improvement"
+      ],
+      "title": "QuarterlyMilestone",
+      "type": "object"
+    },
+    "RoadmapAction": {
+      "properties": {
+        "action": {
+          "title": "Action",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "target_criterion": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Target Criterion",
+          "type": "array"
+        },
+        "quarter": {
+          "title": "Quarter",
+          "type": "string"
+        },
+        "effort_level": {
+          "title": "Effort Level",
+          "type": "string"
+        },
+        "impact_level": {
+          "title": "Impact Level",
+          "type": "string"
+        },
+        "specific_opportunities": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Specific Opportunities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "action",
+        "description",
+        "target_criterion",
+        "quarter",
+        "effort_level",
+        "impact_level"
+      ],
+      "title": "RoadmapAction",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "profile_id": {
+      "title": "Profile Id",
+      "type": "string"
+    },
+    "pathway": {
+      "$ref": "#/$defs/ImmigrationTarget"
+    },
+    "timeline_years": {
+      "title": "Timeline Years",
+      "type": "integer"
+    },
+    "milestones": {
+      "items": {
+        "$ref": "#/$defs/QuarterlyMilestone"
+      },
+      "title": "Milestones",
+      "type": "array"
+    },
+    "narrative_summary": {
+      "title": "Narrative Summary",
+      "type": "string"
+    },
+    "disclaimer": {
+      "default": "This is not legal advice. Consult a qualified immigration attorney.",
+      "title": "Disclaimer",
+      "type": "string"
+    }
+  },
+  "required": [
+    "profile_id",
+    "pathway",
+    "timeline_years",
+    "milestones",
+    "narrative_summary"
+  ],
+  "title": "ImmigrationRoadmap",
+  "type": "object"
+}

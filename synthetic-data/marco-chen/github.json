@@ -1,0 +1,56 @@
+{
+  "username": "marcochen",
+  "name": "Marco Chen",
+  "company": "Meta",
+  "followers": 1245,
+  "total_stars": 1200,
+  "contributions_last_year": 847,
+  "pr_reviews": 203,
+  "repositories": [
+    {
+      "name": "fastqueue",
+      "description": "High-performance message queue library for distributed systems",
+      "stars": 847,
+      "forks": 120,
+      "language": "Rust",
+      "topics": [
+        "distributed-systems",
+        "message-queue",
+        "high-performance"
+      ]
+    },
+    {
+      "name": "distrib-tools",
+      "description": "Testing toolkit for distributed systems",
+      "stars": 312,
+      "forks": 45,
+      "language": "Go",
+      "topics": [
+        "distributed-systems",
+        "testing",
+        "chaos-engineering"
+      ]
+    },
+    {
+      "name": "partition-sim",
+      "description": "Network partition simulator for testing fault tolerance",
+      "stars": 41,
+      "forks": 8,
+      "language": "Python",
+      "topics": [
+        "testing",
+        "distributed-systems"
+      ]
+    }
+  ],
+  "contributions_to": [
+    {
+      "repo": "apache/kafka",
+      "prs_merged": 15
+    },
+    {
+      "repo": "etcd-io/etcd",
+      "prs_merged": 8
+    }
+  ]
+}
