@@ -50,8 +50,11 @@ export default function LandingPage() {
       {/* Nav */}
       <nav aria-label="Main navigation" className="flex items-center justify-between px-4 sm:px-6 py-4 max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center" aria-hidden="true">
-            <Compass className="h-5 w-5 text-primary-foreground" />
+          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 4 L18.5 13.5 L28 16 L18.5 18.5 L16 28 L13.5 18.5 L4 16 L13.5 13.5 Z" fill="white" opacity="0.95"/>
+              <circle cx="16" cy="16" r="3" fill="white" opacity="0.3"/>
+            </svg>
           </div>
           <span className="text-lg sm:text-xl font-semibold tracking-tight">Immigration Roadmap</span>
         </div>

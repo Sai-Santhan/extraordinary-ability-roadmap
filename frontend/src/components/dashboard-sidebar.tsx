@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
-  Compass,
   Upload,
   BarChart3,
   Route,
@@ -78,8 +77,11 @@ export function DashboardSidebar({ userName }: { userName: string | null }) {
     <Sidebar aria-label="Dashboard navigation">
       <SidebarHeader>
         <div className="flex items-center gap-2.5 px-2 py-3">
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center" aria-hidden="true">
-            <Compass className="h-4.5 w-4.5 text-primary-foreground" />
+          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 4 L18.5 13.5 L28 16 L18.5 18.5 L16 28 L13.5 18.5 L4 16 L13.5 13.5 Z" fill="white" opacity="0.95"/>
+              <circle cx="16" cy="16" r="3" fill="white" opacity="0.3"/>
+            </svg>
           </div>
           <span className="font-semibold text-base tracking-tight">Immigration Roadmap</span>
         </div>
