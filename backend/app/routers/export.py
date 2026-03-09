@@ -35,9 +35,12 @@ async def export_profile(
     assessment_data = profile.assessment_data or {}
     roadmap_data = profile.roadmap_data or {}
 
+    # Use authenticated user's name (not the name extracted by AI into profile_data)
+    user_name = user.name or "N/A"
+
     if format == "json":
         content = json.dumps({
-            "profile": profile_data,
+            "profile": {**profile_data, "name": user_name},
             "assessment": assessment_data,
             "roadmap": roadmap_data,
             "disclaimer": "This is not legal advice. Consult a qualified immigration attorney.",
@@ -46,16 +49,16 @@ async def export_profile(
                        headers={"Content-Disposition": f"attachment; filename=immigration-profile-{profile_id}.json"})
 
     elif format == "markdown":
-        content = export_markdown(profile_data, assessment_data, roadmap_data)
+        content = export_markdown(profile_data, assessment_data, roadmap_data, user_name=user_name)
         return Response(content=content, media_type="text/markdown",
                        headers={"Content-Disposition": f"attachment; filename=immigration-profile-{profile_id}.md"})
 
     elif format == "pdf":
-        content = export_pdf(profile_data, assessment_data, roadmap_data)
+        content = export_pdf(profile_data, assessment_data, roadmap_data, user_name=user_name)
         return Response(content=content, media_type="application/pdf",
                        headers={"Content-Disposition": f"attachment; filename=immigration-profile-{profile_id}.pdf"})
 
     elif format == "docx":
-        content = export_docx(profile_data, assessment_data, roadmap_data)
+        content = export_docx(profile_data, assessment_data, roadmap_data, user_name=user_name)
         return Response(content=content, media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                        headers={"Content-Disposition": f"attachment; filename=immigration-profile-{profile_id}.docx"})

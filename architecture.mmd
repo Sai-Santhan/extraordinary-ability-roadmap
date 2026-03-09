@@ -1,0 +1,142 @@
+%%{ init: {
+  "theme": "dark",
+  "themeVariables": {
+    "primaryColor": "#7c3aed",
+    "primaryTextColor": "#f5f3ff",
+    "primaryBorderColor": "#a78bfa",
+    "secondaryColor": "#1e1b4b",
+    "tertiaryColor": "#312e81",
+    "lineColor": "#818cf8",
+    "textColor": "#e2e8f0",
+    "mainBkg": "#0f172a",
+    "nodeBorder": "#6366f1",
+    "clusterBkg": "#1e1b4b",
+    "clusterBorder": "#4f46e5",
+    "titleColor": "#c4b5fd",
+    "edgeLabelBackground": "#1e1b4b",
+    "fontSize": "14px"
+  },
+  "flowchart": { "curve": "basis", "padding": 8, "nodeSpacing": 30, "rankSpacing": 40 }
+} }%%
+
+flowchart TB
+  subgraph SOURCES["📂 User Data Sources"]
+    direction LR
+    CV["📄 CV/Resume · PDF, DOCX"]
+    SCHOLAR["🎓 Google Scholar · JSON"]
+    GITHUB["💻 GitHub · JSON"]
+    TAKEOUT["📦 Google Takeout · MBOX, ICS"]
+    CHATGPT["💬 ChatGPT Export · JSON"]
+    LINKEDIN["🔗 LinkedIn · PDF"]
+    IMAGES["🖼️ Certificates · PNG, JPG"]
+  end
+
+  subgraph FRONTEND["⚡ Frontend — Next.js 16.1.6 · Vercel"]
+    direction TB
+    subgraph PAGES["App Router Pages"]
+      direction LR
+      LANDING["Landing"]
+      ONBOARD["Onboarding"]
+      EVIDENCE["Evidence Upload"]
+      CRITERIA["Criteria Dashboard"]
+      ROADMAP_UI["Roadmap"]
+      EXPORT_UI["Export Center"]
+      SETTINGS["Settings"]
+    end
+    subgraph FSTACK["Stack"]
+      direction LR
+      BASEUI["shadcn/ui · Base UI"]
+      TAILWIND["Tailwind CSS"]
+      ZUSTAND["Zustand · Auth + State"]
+      RQ["React Query"]
+      RECHARTS["Recharts"]
+    end
+    SSE_CLIENT["EventSource · SSE Client"]
+  end
+
+  subgraph BACKEND["🐍 Backend — FastAPI · Python 3.13 · Railway"]
+    direction TB
+    subgraph AUTH["🔐 Auth & API"]
+      direction LR
+      JWT["JWT · python-jose + bcrypt"]
+      RATE["Rate Limiter · slowapi"]
+      CORS["CORS Middleware"]
+      ROUTES["Routers: auth · profiles · evidence · analyze · export · consent · data"]
+    end
+    subgraph PARSERS["📑 File Parsers"]
+      direction LR
+      P_PDF["PDF · PyMuPDF"]
+      P_JSON["JSON · Scholar/ChatGPT"]
+      P_MBOX["MBOX · Gmail"]
+      P_ICS["ICS · Calendar"]
+      P_LI["LinkedIn PDF"]
+      P_IMG["Image · PNG/JPG"]
+    end
+    subgraph PIPELINE["🤖 Agentic Pipeline — 4 Sequential Agents"]
+      direction LR
+      A1["1️⃣ Ingestion — File parsing, no LLM → RawCareerData"]
+      PII["🔒 PII Scrubber — Redact emails, phones, addresses, SSNs, DOBs"]
+      A2["2️⃣ Extraction — Claude Structured Outputs → ImmigrationProfile"]
+      A3["3️⃣ Assessment — Criteria scoring + RAG → CriteriaAssessment"]
+      A4["4️⃣ Roadmap — Action planning + RAG → ImmigrationRoadmap"]
+      A1 --> PII --> A2 --> A3 --> A4
+    end
+    SSE_SERVER["SSE Stream · /api/analyze/stream/{id}?token=JWT"]
+    subgraph EXPORT["📤 Export"]
+      direction LR
+      E_MD["Markdown"]
+      E_PDF["PDF · ReportLab"]
+      E_DOCX["DOCX · python-docx"]
+    end
+  end
+
+  subgraph EXTERNAL["☁️ External Services"]
+    direction LR
+    CLAUDE["Claude API · Sonnet 4.5 · Structured Outputs"]
+    CHROMA["ChromaDB · In-Memory · 25 Legal Documents"]
+  end
+
+  subgraph DATA["💾 Data Layer · Railway"]
+    direction LR
+    PG["PostgreSQL 16 — users · profiles · evidence_files · data_consents"]
+    SCHEMAS["Open JSON Schemas — shared/schemas/ · 4 exported Pydantic models"]
+  end
+
+  SOURCES -- "User uploads & API links" --> EVIDENCE
+  FRONTEND -- "REST API · JWT Bearer" --> AUTH
+  SSE_CLIENT <-. "SSE real-time progress" .-> SSE_SERVER
+  JWT --> ROUTES
+  RATE --> ROUTES
+  CORS --> ROUTES
+  ROUTES --> PARSERS
+  PARSERS --> A1
+  A2 -- "Structured Outputs" --> CLAUDE
+  A3 -- "Structured Outputs" --> CLAUDE
+  A4 -- "Structured Outputs" --> CLAUDE
+  A3 -. "RAG Query" .-> CHROMA
+  A4 -. "RAG Query" .-> CHROMA
+  PIPELINE -- "Stage events" --> SSE_SERVER
+  ROUTES --> PG
+  PIPELINE --> PG
+  ROUTES --> EXPORT
+  EXPORT -- "Portable formats" --> SCHEMAS
+
+  classDef source fill:#1e3a5f,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px
+  classDef frontend fill:#1e1b4b,stroke:#818cf8,color:#e0e7ff,stroke-width:1px
+  classDef backend fill:#1a1333,stroke:#a78bfa,color:#ede9fe,stroke-width:1px
+  classDef agent fill:#312e81,stroke:#7c3aed,color:#f5f3ff,stroke-width:2px
+  classDef pii fill:#1a2e2e,stroke:#f43f5e,color:#ffe4e6,stroke-width:2px
+  classDef external fill:#134e4a,stroke:#2dd4bf,color:#ccfbf1,stroke-width:1px
+  classDef data fill:#1c1917,stroke:#f59e0b,color:#fef3c7,stroke-width:1px
+  classDef parser fill:#27272a,stroke:#a1a1aa,color:#e4e4e7,stroke-width:1px
+  classDef export fill:#1a2e05,stroke:#84cc16,color:#ecfccb,stroke-width:1px
+
+  class CV,SCHOLAR,GITHUB,TAKEOUT,CHATGPT,LINKEDIN,IMAGES source
+  class LANDING,ONBOARD,EVIDENCE,CRITERIA,ROADMAP_UI,EXPORT_UI,SETTINGS,BASEUI,TAILWIND,ZUSTAND,RQ,RECHARTS,SSE_CLIENT frontend
+  class JWT,RATE,CORS,ROUTES,SSE_SERVER backend
+  class A1,A2,A3,A4 agent
+  class PII pii
+  class P_PDF,P_JSON,P_MBOX,P_ICS,P_LI,P_IMG parser
+  class CLAUDE,CHROMA external
+  class PG,SCHEMAS data
+  class E_MD,E_PDF,E_DOCX export

@@ -1,5 +1,7 @@
 import mailbox
 
+from app.services.pii_scrubber import scrub_email_headers, scrub_text
+
 
 def parse_mbox(file_path: str) -> dict:
     mbox = mailbox.mbox(file_path)
@@ -12,7 +14,10 @@ def parse_mbox(file_path: str) -> dict:
             "date": message.get("date", ""),
             "body": _get_body(message),
         })
-    return {"text": "\n\n---\n\n".join(f"Subject: {e['subject']}\nFrom: {e['from']}\nDate: {e['date']}\n\n{e['body']}" for e in emails), "emails": emails, "count": len(emails), "type": "mbox"}
+    raw_text = "\n\n---\n\n".join(f"Subject: {e['subject']}\nFrom: {e['from']}\nDate: {e['date']}\n\n{e['body']}" for e in emails)
+    # Scrub contact PII from email headers and body text
+    scrubbed_text = scrub_text(scrub_email_headers(raw_text))
+    return {"text": scrubbed_text, "emails": emails, "count": len(emails), "type": "mbox"}
 
 
 def _get_body(message) -> str:

@@ -6,7 +6,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.units import inch
 
 
-def export_pdf(profile_data: dict, assessment_data: dict, roadmap_data: dict) -> bytes:
+def export_pdf(profile_data: dict, assessment_data: dict, roadmap_data: dict, user_name: str = "N/A") -> bytes:
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=0.75*inch, bottomMargin=0.75*inch)
     styles = getSampleStyleSheet()
@@ -26,7 +26,7 @@ def export_pdf(profile_data: dict, assessment_data: dict, roadmap_data: dict) ->
     # Profile Summary
     story.append(Paragraph("Profile Summary", h2_style))
     story.append(Spacer(1, 8))
-    name = profile_data.get("name", "N/A")
+    name = user_name
     field = profile_data.get("field_of_expertise", "N/A")
     role = profile_data.get("current_role", "N/A")
     employer = profile_data.get("current_employer", "N/A")

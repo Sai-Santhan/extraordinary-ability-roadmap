@@ -68,9 +68,7 @@ export default function Image() {
               letterSpacing: "-0.02em",
             }}
           >
-            Immigration
-            <br />
-            Roadmap
+            Immigration Roadmap
           </h1>
           <div
             style={{
@@ -89,7 +87,7 @@ export default function Image() {
               maxWidth: 600,
             }}
           >
-            AI-powered planning for EB-1A, NIW, and O-1
+            AI-powered planning for EB-1A, EB-1B, EB-1C, NIW, and O-1
             <br />
             immigration pathways.
           </p>
@@ -97,7 +95,7 @@ export default function Image() {
 
         {/* Bottom: badges */}
         <div style={{ display: "flex", gap: "12px" }}>
-          {["EB-1A", "NIW", "O-1"].map((label) => (
+          {["EB-1A", "EB-1B", "EB-1C", "NIW", "O-1"].map((label) => (
             <div
               key={label}
               style={{

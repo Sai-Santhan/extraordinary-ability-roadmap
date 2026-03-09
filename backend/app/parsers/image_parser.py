@@ -7,10 +7,15 @@ import anthropic
 
 from app.config import settings
 
-VISION_PROMPT = """Analyze this document image and extract all relevant information.
+VISION_PROMPT = """Analyze this document image and extract relevant information for immigration evidence assessment.
 
 1. Describe the document type (certificate, letter, article, patent, award, etc.)
-2. Extract ALL text visible in the image
+2. Extract text visible in the image, with the following PRIVACY rules:
+   - DO NOT include email addresses — replace with [EMAIL REDACTED]
+   - DO NOT include phone numbers — replace with [PHONE REDACTED]
+   - DO NOT include physical/mailing addresses — replace with [ADDRESS REDACTED]
+   - DO NOT include social security numbers or ID numbers — replace with [ID REDACTED]
+   - DO keep names of people, organizations, institutions, dates, and achievements
 3. Identify key details:
    - Issuing organization or institution
    - Dates (issued, valid, event dates)
@@ -26,8 +31,8 @@ KEY DETAILS:
 - [detail 1]
 - [detail 2]
 
-FULL EXTRACTED TEXT:
-[all text from the image]"""
+EXTRACTED TEXT:
+[text from the image, with contact PII redacted as described above]"""
 
 
 def parse_image(file_path: str) -> dict:

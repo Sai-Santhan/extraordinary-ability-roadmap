@@ -1,6 +1,6 @@
 # Immigration Empowerment Through Data Portability
 
-**AI-powered immigration roadmap that turns your scattered career data into a personalized strategy for EB-1A, NIW, and O-1 visa pathways.**
+**AI-powered immigration roadmap that turns your scattered career data into a personalized strategy for EB-1A, EB-1B, EB-1C, NIW, and O-1 visa pathways.**
 
 [![Data Portability Hackathon](https://img.shields.io/badge/DTI%20Hackathon-Track%203-blue)](https://www.dataportability.dev)
 [![Built with Claude](https://img.shields.io/badge/Built%20with-Claude%20API-orange)](https://anthropic.com)
@@ -11,7 +11,7 @@
 
 ## The Problem
 
-Immigrants pursuing extraordinary ability visas (EB-1A, NIW, O-1) face a fragmented evidence landscape. Their career achievements are scattered across dozens of platforms:
+Immigrants pursuing extraordinary ability visas (EB-1A, EB-1B, EB-1C, NIW, O-1) face a fragmented evidence landscape. Their career achievements are scattered across dozens of platforms:
 
 - **Google Scholar** knows their publications
 - **GitHub** knows their open-source contributions
@@ -34,7 +34,7 @@ This tool bridges the gap — letting users **aggregate their own data**, proces
 │ Parse CV,    │     │ Structure    │     │ Score against│     │ Generate     │
 │ Scholar,     │     │ into typed   │     │ USCIS        │     │ quarterly    │
 │ GitHub,      │     │ evidence     │     │ criteria     │     │ action plan  │
-│ Takeout      │     │ records      │     │ with AI      │     │ with gaps    │
+│ Takeout      │     │ records      │     │ with AI+RAG  │     │ with gaps    │
 └──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
 ```
 
@@ -42,13 +42,21 @@ Each stage uses Claude API with **structured outputs** to guarantee valid, typed
 
 ### Key Features
 
-- **Multi-source data import** — CV/resume, Google Scholar, GitHub, Google Takeout (Gmail, Calendar), ChatGPT exports, LinkedIn PDF
-- **AI criteria assessment** — Scores evidence against all 10 EB-1A criteria (or NIW/O-1) with calibrated confidence percentages
+- **Multi-source data import** — CV/resume, Google Scholar, GitHub, Google Takeout (Gmail, Calendar), ChatGPT exports, LinkedIn PDF, images
+- **AI criteria assessment** — Scores evidence against EB-1A/EB-1B/EB-1C/NIW/O-1 criteria with calibrated confidence percentages, grounded by RAG over curated USCIS legal corpus
 - **Interactive radar chart** — Visual dashboard mapping your strengths and gaps across USCIS criteria
 - **Personalized roadmap** — Quarterly action plan telling you *exactly* what to do and which criterion each action strengthens
-- **Full data portability** — Export everything as JSON, Markdown, PDF, or DOCX — your immigration profile is yours
-- **Guided onboarding** — Step-by-step tour for first-time users
-- **Privacy-first** — All data scoped to your account, one-click deletion, transparent AI disclosure
+- **Full data portability** — Export everything as Markdown, PDF, or DOCX — your immigration profile is yours
+- **Guided onboarding** — 6-step wizard recommending the best pathway based on your background
+- **Pathway switching** — Change target pathway anytime (30-day cooldown between switches)
+- **Privacy-first** — Contact-level PII (emails, phones, addresses, SSNs, DOBs) automatically redacted from stored data and before AI processing. Per-source consent tracking, all data scoped to your account, one-click deletion, transparent AI disclosure
+
+---
+
+## Live Demo
+
+- **Frontend**: [immigration-roadmap.com](https://immigration-roadmap.com)
+- **Backend API**: [backend-production-95ea4.up.railway.app](https://backend-production-95ea4.up.railway.app/api/health)
 
 ---
 
@@ -64,10 +72,10 @@ Each stage uses Claude API with **structured outputs** to guarantee valid, typed
 ### 1. Clone & configure
 
 ```bash
-git clone https://github.com/your-org/immigration-empowerment-through-data-portability.git
+git clone https://github.com/Sai-Santhan/extraordinary-ability-roadmap.git
 cd immigration-empowerment-through-data-portability
-cp backend/.env.example backend/.env
-# Edit backend/.env and set your ANTHROPIC_API_KEY
+cp .env.example .env
+# Edit .env and set your ANTHROPIC_API_KEY
 ```
 
 ### 2. Start the database
@@ -114,11 +122,10 @@ This creates three demo personas you can log in with immediately:
 
 ```
 immigration-empowerment-through-data-portability/
-├── frontend/          Next.js 16 App Router + shadcn/ui + Tailwind + Zustand
-├── backend/           FastAPI + SQLAlchemy + Pydantic v2 + Claude API
-├── shared/            JSON schemas for data portability
-├── synthetic-data/    Demo files for seeded personas
-└── docs/              Architecture docs and implementation plans
+├── frontend/          Next.js 16 App Router + shadcn/ui (Base UI) + Tailwind + Zustand
+├── backend/           FastAPI + async SQLAlchemy + Pydantic v2 + Claude API + ChromaDB
+├── shared/            JSON schemas for data portability (exported from Pydantic models)
+└── synthetic-data/    Demo files for seeded personas (CV, Gmail, Scholar, ChatGPT, GitHub)
 ```
 
 ### Frontend
@@ -126,33 +133,37 @@ immigration-empowerment-through-data-portability/
 | Layer | Technology |
 |-------|-----------|
 | Framework | Next.js 16.1.6 (App Router, Turbopack) |
-| UI Components | shadcn/ui (Base UI) + Tailwind CSS |
-| Charts | Recharts (via shadcn Charts) |
+| UI Components | shadcn/ui (Base UI, `render` prop — not Radix `asChild`) + Tailwind CSS |
+| Charts | Recharts |
 | State | Zustand (client) + React Query (server) |
-| Auth | JWT stored in Zustand with localStorage |
+| Auth | Custom JWT stored in Zustand with localStorage |
 | Streaming | EventSource (SSE) |
+| Theming | Custom ThemeProvider with light/dark mode |
 
 ### Backend
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | FastAPI (async) |
+| Framework | FastAPI (async, Python 3.13) |
 | AI | Claude API (Sonnet 4.5) with Structured Outputs |
-| ORM | SQLAlchemy (async) + Pydantic v2 |
+| RAG | ChromaDB vector DB with curated USCIS legal corpus |
+| ORM | async SQLAlchemy + Pydantic v2 |
 | Database | PostgreSQL 16 |
 | Auth | python-jose (JWT) + bcrypt |
-| Parsing | PyMuPDF, python-docx, custom MBOX/ICS/JSON parsers |
+| Parsing | PyMuPDF (PDF), custom parsers (MBOX, ICS, JSON, LinkedIn PDF, images) |
+| Export | python-docx (DOCX), ReportLab (PDF), native (Markdown) |
+| Rate Limiting | slowapi |
 
 ### Agentic Pipeline
 
 Four sequential agents, each a Claude API call with Pydantic structured output:
 
-1. **Ingestion Agent** — Parses uploaded files (PDF, DOCX, MBOX, ICS, JSON) and API data into `RawCareerData`
-2. **Extraction Agent** — Uses Claude Structured Outputs to extract typed evidence into `ImmigrationProfile`
-3. **Assessment Agent** — Scores evidence against USCIS criteria with calibrated confidence → `CriteriaAssessment`
-4. **Roadmap Agent** — Generates time-phased action plan weighted by gap severity → `ImmigrationRoadmap`
+1. **Ingestion Agent** — Parses uploaded files (PDF, DOCX, MBOX, ICS, JSON, images) into `RawCareerData` (no LLM call). Contact-level PII is scrubbed before storage.
+2. **Extraction Agent** — Uses Claude Structured Outputs to extract typed evidence into `ImmigrationProfile`. Input is PII-scrubbed; prompt instructs Claude to ignore any residual PII.
+3. **Assessment Agent** — Scores evidence against USCIS criteria with calibrated confidence + RAG legal context → `CriteriaAssessment`
+4. **Roadmap Agent** — Generates time-phased action plan weighted by gap severity + RAG legal context → `ImmigrationRoadmap`
 
-Progress is streamed to the frontend via SSE at `GET /api/analyze/stream/{profile_id}`.
+Progress is streamed to the frontend via SSE at `GET /api/analyze/stream/{profile_id}?token=JWT`.
 
 ---
 
@@ -165,10 +176,12 @@ Every architectural decision follows data portability principles:
 | Principle | Implementation |
 |-----------|---------------|
 | **User-initiated** | Data only enters the system when the user explicitly provides it |
+| **PII redaction** | Contact-level PII (emails, phones, addresses, SSNs, DOBs) automatically scrubbed from database, uploaded files on disk, and before sending to AI — names and org names preserved for assessment accuracy |
 | **Transparent processing** | Users see exactly what the AI extracted and can correct it |
-| **Portable output** | All results export as open formats (JSON, Markdown, PDF, DOCX) |
-| **No lock-in** | The structured immigration profile follows an open schema the user owns |
-| **Right to deletion** | One-click data purge removes all stored information |
+| **Portable output** | All results export as open formats (Markdown, PDF, DOCX) |
+| **No lock-in** | The structured immigration profile follows an open JSON schema the user owns |
+| **Right to deletion** | One-click data purge via `/api/data/delete` removes all stored information |
+| **Consent tracking** | Per-source consent records — users control which data sources are processed |
 | **GDPR Article 20** | Structured, machine-readable output in commonly used formats |
 
 ### Supported Import Sources
@@ -176,19 +189,19 @@ Every architectural decision follows data portability principles:
 | Source | Format | What It Provides |
 |--------|--------|-----------------|
 | CV / Resume | PDF, DOCX | Employment history, education, skills, achievements |
-| Google Scholar | URL → API | Publications, citations, h-index, co-authors |
-| GitHub | Username → API | Contributions, stars, PRs, review activity |
+| Google Scholar | JSON | Publications, citations, h-index, co-authors |
+| GitHub | JSON | Contributions, stars, PRs, review activity |
 | Google Takeout | MBOX, ICS, JSON | Conference invitations, peer review requests, calendar events |
 | ChatGPT Export | JSON | Career planning discussions, domain expertise evidence |
 | LinkedIn | PDF | Roles, endorsements, recommendations, certifications |
+| Certificates | PNG, JPG | Award and certificate images |
 
 ### Export Formats
 
 | Format | Use Case |
 |--------|----------|
-| **JSON** | Machine-readable profile for attorney software or other tools |
 | **Markdown** | Human-readable summary for personal records |
-| **PDF** | Polished report with radar chart for attorney consultations |
+| **PDF** | Polished report for attorney consultations |
 | **DOCX** | Editable document for collaborative review |
 
 ---
@@ -198,6 +211,8 @@ Every architectural decision follows data portability principles:
 ### Immigration Pathways
 
 - **EB-1A (Extraordinary Ability)** — Requires meeting 3 of 10 criteria (practically 4-5 in 2025-2026 given declining approval rates)
+- **EB-1B (Outstanding Professor/Researcher)** — For outstanding professors/researchers with a qualifying permanent job offer; employer sponsorship required
+- **EB-1C (Multinational Manager/Executive)** — For multinational managers/executives transferred within a corporate group
 - **EB-2 NIW (National Interest Waiver)** — Dhanasar 3-prong framework: national importance, well-positioned, benefit outweighs labor cert
 - **O-1 (Extraordinary Ability)** — Similar criteria to EB-1A, nonimmigrant visa
 
@@ -210,7 +225,7 @@ Overall = 0.4 × Data Confidence + 0.6 × Criteria Match
 ```
 
 - **Data Confidence** (0–100%) — How reliable is the source? Corroboration across multiple sources increases confidence.
-- **Criteria Match** (0–100%) — How well does the evidence satisfy USCIS requirements? Calibrated against real examples.
+- **Criteria Match** (0–100%) — How well does the evidence satisfy USCIS requirements? Calibrated against real examples via RAG legal corpus.
 
 ---
 
@@ -225,10 +240,10 @@ cd backend
 
 ## Environment Variables
 
-Create `backend/.env` from the example:
+Create `.env` from the example:
 
 ```bash
-cp backend/.env.example backend/.env
+cp .env.example .env
 ```
 
 | Variable | Description | Default |

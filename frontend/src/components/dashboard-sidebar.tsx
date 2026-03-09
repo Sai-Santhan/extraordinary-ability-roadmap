@@ -51,7 +51,7 @@ export function DashboardSidebar({ userName }: { userName: string | null }) {
   const router = useRouter();
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const { isMobile, setOpenMobile } = useSidebar();
-  const { theme, setTheme } = useTheme();
+  const { isDark, setTheme } = useTheme();
 
   const handleLogout = () => {
     clearAuth();
@@ -110,15 +110,15 @@ export function DashboardSidebar({ userName }: { userName: string | null }) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              onClick={() => setTheme(isDark ? "light" : "dark")}
+              aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
             >
-              {theme === "dark" ? (
+              {isDark ? (
                 <Sun className="h-4 w-4" aria-hidden="true" />
               ) : (
                 <Moon className="h-4 w-4" aria-hidden="true" />
               )}
-              <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+              <span>{isDark ? "Light Mode" : "Dark Mode"}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>

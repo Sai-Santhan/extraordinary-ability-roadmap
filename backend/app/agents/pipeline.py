@@ -10,6 +10,7 @@ from app.agents.ingestion import IngestionAgent
 from app.agents.roadmap import RoadmapAgent
 from app.models.database import EvidenceFile, ImmigrationProfileDB
 from app.prompts.shared import PATHWAY_DISPLAY
+from app.services.pii_scrubber import scrub_text
 
 
 async def run_pipeline(profile_id: str, db: AsyncSession) -> AsyncGenerator[dict, None]:
@@ -44,6 +45,9 @@ async def run_pipeline(profile_id: str, db: AsyncSession) -> AsyncGenerator[dict
     try:
         ingestion_agent = IngestionAgent()
         raw_data = await ingestion_agent.run(ef_dicts)
+        # Scrub contact-level PII from raw text before storage and Claude API
+        for source in raw_data.sources:
+            source.raw_text = scrub_text(source.raw_text)
         profile.raw_career_data = raw_data.model_dump(mode="json")
         await db.commit()
     except Exception as e:

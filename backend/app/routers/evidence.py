@@ -9,6 +9,7 @@ from app.auth import get_current_user
 from app.database import get_db
 from app.models.database import DataConsent, EvidenceFile, ImmigrationProfileDB, User
 from app.parsers.router import route_parser
+from app.services.pii_scrubber import scrub_file_on_disk, scrub_text
 
 router = APIRouter(prefix="/api/evidence", tags=["evidence"])
 
@@ -79,6 +80,10 @@ async def upload_evidence(
     except Exception as e:
         os.remove(file_path)
         raise HTTPException(status_code=422, detail=f"Failed to parse file: {str(e)}")
+
+    # Scrub PII from extracted text and file on disk
+    extracted_text = scrub_text(extracted_text)
+    scrub_file_on_disk(file_path, source_type)
 
     # Store record
     evidence = EvidenceFile(

@@ -1,4 +1,4 @@
-def export_markdown(profile_data: dict, assessment_data: dict, roadmap_data: dict) -> str:
+def export_markdown(profile_data: dict, assessment_data: dict, roadmap_data: dict, user_name: str = "N/A") -> str:
     lines = []
     lines.append("# Immigration Profile Report")
     lines.append("")
@@ -7,7 +7,7 @@ def export_markdown(profile_data: dict, assessment_data: dict, roadmap_data: dic
 
     # Profile Summary
     lines.append("## Profile Summary")
-    lines.append(f"- **Name:** {profile_data.get('name', 'N/A')}")
+    lines.append(f"- **Name:** {user_name}")
     lines.append(f"- **Field:** {profile_data.get('field_of_expertise', 'N/A')}")
     lines.append(f"- **Current Role:** {profile_data.get('current_role', 'N/A')} at {profile_data.get('current_employer', 'N/A')}")
     lines.append(f"- **Target Pathway:** {profile_data.get('target_pathway', 'N/A').upper()}")

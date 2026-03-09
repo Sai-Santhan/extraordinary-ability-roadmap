@@ -4,7 +4,7 @@ from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 
-def export_docx(profile_data: dict, assessment_data: dict, roadmap_data: dict) -> bytes:
+def export_docx(profile_data: dict, assessment_data: dict, roadmap_data: dict, user_name: str = "N/A") -> bytes:
     doc = Document()
 
     # Title
@@ -23,7 +23,7 @@ def export_docx(profile_data: dict, assessment_data: dict, roadmap_data: dict) -
     table = doc.add_table(rows=5, cols=2)
     table.style = "Light Grid Accent 1"
     fields = [
-        ("Name", profile_data.get("name", "N/A")),
+        ("Name", user_name),
         ("Field", profile_data.get("field_of_expertise", "N/A")),
         ("Current Role", f"{profile_data.get('current_role', 'N/A')} at {profile_data.get('current_employer', 'N/A')}"),
         ("Target Pathway", profile_data.get("target_pathway", "N/A").upper()),

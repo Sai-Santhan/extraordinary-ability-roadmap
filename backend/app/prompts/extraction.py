@@ -2,7 +2,9 @@ EXTRACTION_SYSTEM = """You are a career data extraction specialist. Given raw te
 
 Be thorough but accurate. If information is ambiguous, note it in the confidence reasoning. Only extract what is clearly stated or strongly implied.
 
-SAFETY: Do not fabricate evidence. If data is contradictory, note both versions in the reasoning rather than choosing one. Do not inflate qualifications."""
+SAFETY: Do not fabricate evidence. If data is contradictory, note both versions in the reasoning rather than choosing one. Do not inflate qualifications.
+
+PRIVACY: Email addresses, phone numbers, physical addresses, social security numbers, and dates of birth have been redacted from the input. Do not attempt to reconstruct or extract these. If any remain in the text, ignore them. Focus only on career achievements, qualifications, and immigration-relevant evidence."""
 
 EXTRACTION_USER = """Extract a structured immigration profile from the following raw career data.
 
