@@ -57,13 +57,10 @@ origins = [
 ]
 origins = list(dict.fromkeys(origins))
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# NOTE: Starlette executes middlewares in reverse order of addition.
+# The LAST added middleware runs OUTERMOST (processes requests first).
+# We add security headers FIRST (inner), then CORS LAST (outer),
+# so CORS headers are always present — even on error responses.
 
 
 @app.middleware("http")
@@ -75,6 +72,15 @@ async def add_security_headers(request: Request, call_next) -> Response:
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     return response
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 app.include_router(auth_router)
