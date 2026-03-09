@@ -41,6 +41,9 @@ async def list_profiles(
             "pathway_changed_since_analysis": p.pathway_changed_since_analysis,
             "last_pathway_switch": p.last_pathway_switch.isoformat() if p.last_pathway_switch else None,
             "last_analysis_run": p.last_analysis_run.isoformat() if p.last_analysis_run else None,
+            "profile_data": p.profile_data,
+            "assessment_data": p.assessment_data,
+            "roadmap_data": p.roadmap_data,
             "created_at": p.created_at.isoformat() if p.created_at else None,
             "updated_at": p.updated_at.isoformat() if p.updated_at else None,
         }
@@ -95,19 +98,19 @@ async def update_pathway(
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
 
-    # Rate limit: 1 switch per day
+    # Rate limit: 1 switch per month
     now = datetime.now(timezone.utc)
     if profile.last_pathway_switch:
         last_switch = profile.last_pathway_switch
         if last_switch.tzinfo is None:
             last_switch = last_switch.replace(tzinfo=timezone.utc)
         time_since = now - last_switch
-        if time_since < timedelta(hours=24):
-            retry_after = last_switch + timedelta(hours=24)
+        if time_since < timedelta(days=30):
+            retry_after = last_switch + timedelta(days=30)
             raise HTTPException(
                 status_code=429,
                 detail={
-                    "message": "You can only switch pathways once per day",
+                    "message": "You can only switch pathways once per month",
                     "retry_after": retry_after.isoformat(),
                     "limit_type": "pathway_switch",
                 },
@@ -115,6 +118,7 @@ async def update_pathway(
 
     profile.target_pathway = data.pathway.value
     profile.pathway_changed_since_analysis = True
+    now = datetime.now(timezone.utc)
     profile.last_pathway_switch = now
 
     # Also update profile_data if it exists

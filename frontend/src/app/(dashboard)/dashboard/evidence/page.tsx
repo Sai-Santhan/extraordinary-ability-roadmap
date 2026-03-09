@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmModal } from "@/components/confirm-modal";
 import {
   Upload,
   FileText,
@@ -35,7 +36,7 @@ const DATA_SOURCES = [
   { type: "calendar", name: "Calendar (ICS)", icon: Calendar, accept: ".ics", description: "Google Calendar events" },
   { type: "linkedin", name: "LinkedIn PDF", icon: Linkedin, accept: ".pdf,.txt", description: "LinkedIn profile export" },
   { type: "chatgpt_export", name: "ChatGPT Export", icon: MessageSquare, accept: ".json", description: "ChatGPT conversation history" },
-  { type: "documents", name: "Other Documents", icon: Image, accept: ".pdf,.jpg,.jpeg,.png,.webp", description: "Certificates, awards, letters, articles (PDF or images)" },
+  { type: "documents", name: "Other Documents", icon: Image, accept: ".pdf,.jpg,.jpeg,.png,.webp,.json", description: "Certificates, awards, letters, articles (PDF, images, or JSON)" },
 ];
 
 interface UploadedFile {
@@ -64,6 +65,8 @@ export default function EvidencePage() {
   const [pendingFile, setPendingFile] = useState<{ sourceType: string; file: File } | null>(null);
   const [eventSourceRef, setEventSourceRef] = useState<EventSource | null>(null);
   const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
+  const [showAnalysisModal, setShowAnalysisModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const token = useAuthStore((s) => s.token);
   const { stages, setStage, setProfileId: setAnalysisProfileId, reset: resetAnalysis } = useAnalysisStore();
 
@@ -150,6 +153,15 @@ export default function EvidencePage() {
 
   const startAnalysis = async () => {
     if (!profileId || uploads.length === 0) return;
+    
+    // Show confirmation modal first
+    setShowAnalysisModal(true);
+  };
+
+  const confirmStartAnalysis = async () => {
+    if (!profileId || uploads.length === 0) return;
+    setShowAnalysisModal(false);
+    
     setAnalyzing(true);
     setRateLimitMessage(null);
     resetAnalysis();
@@ -163,7 +175,7 @@ export default function EvidencePage() {
     } catch (err) {
       setAnalyzing(false);
       const message = err instanceof Error ? err.message : "Failed to start analysis";
-      if (message.toLowerCase().includes("once per day") || message.toLowerCase().includes("rate limit") || message.includes("24 hours")) {
+      if (message.toLowerCase().includes("once per week") || message.toLowerCase().includes("rate limit") || message.includes("7 days")) {
         setRateLimitMessage(message);
       }
       return;
@@ -190,11 +202,16 @@ export default function EvidencePage() {
   };
 
   const stopAnalysis = () => {
+    setShowCancelModal(true);
+  };
+
+  const confirmStopAnalysis = () => {
     if (eventSourceRef) {
       eventSourceRef.close();
       setEventSourceRef(null);
     }
     setAnalyzing(false);
+    setShowCancelModal(false);
   };
 
   const stageIcons: Record<string, React.ReactNode> = {
@@ -400,6 +417,8 @@ export default function EvidencePage() {
                 </div>
               )}
 
+
+
               {analyzing ? (
                 <Button
                   onClick={stopAnalysis}
@@ -433,6 +452,26 @@ export default function EvidencePage() {
         sourceType={consentModal.type}
         sourceName={consentModal.name}
         onConsent={handleConsentGranted}
+      />
+
+      <ConfirmModal
+        open={showAnalysisModal}
+        onOpenChange={setShowAnalysisModal}
+        title="Start AI Analysis"
+        description="Please note that you can only run the AI analysis once per week. This process will analyze all your uploaded files through our 4-stage pipeline and may take several minutes to complete."
+        confirmLabel="Start Analysis"
+        onConfirm={confirmStartAnalysis}
+      />
+
+      <ConfirmModal
+        open={showCancelModal}
+        onOpenChange={setShowCancelModal}
+        title="Cancel Analysis?"
+        description="Are you sure you want to cancel the analysis? If you cancel, you'll need to wait until next week to run the analysis again due to the weekly limit."
+        confirmLabel="Cancel Analysis"
+        cancelLabel="Continue Analysis"
+        onConfirm={confirmStopAnalysis}
+        variant="destructive"
       />
     </div>
   );

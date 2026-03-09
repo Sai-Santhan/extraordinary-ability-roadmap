@@ -70,7 +70,7 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [roleType, setRoleType] = useState("");
   const [primaryField, setPrimaryField] = useState("");
-  const [yearsExperience, setYearsExperience] = useState<number>(0);
+  const [yearsExperience, setYearsExperience] = useState<string>("");
   const [qualifications, setQualifications] = useState<string[]>([]);
   const [currentVisa, setCurrentVisa] = useState("");
   const [loading, setLoading] = useState(false);
@@ -89,7 +89,7 @@ export default function OnboardingPage() {
     switch (step) {
       case 1: return !!roleType;
       case 2: return primaryField.trim().length > 0;
-      case 3: return yearsExperience >= 0;
+      case 3: return yearsExperience !== "" && Number(yearsExperience) >= 0;
       case 4: return true; // qualifications are optional
       case 5: return true; // visa is optional
       default: return false;
@@ -106,7 +106,7 @@ export default function OnboardingPage() {
       }>("/api/onboarding/", {
         role_type: roleType,
         primary_field: primaryField,
-        years_experience: yearsExperience,
+        years_experience: Number(yearsExperience),
         qualifications,
         current_visa: currentVisa || null,
       });
@@ -223,7 +223,17 @@ export default function OnboardingPage() {
                   min={0}
                   max={50}
                   value={yearsExperience}
-                  onChange={(e) => setYearsExperience(parseInt(e.target.value) || 0)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === '') {
+                      setYearsExperience("");
+                    } else {
+                      const num = parseInt(value, 10);
+                      if (!isNaN(num) && num >= 0 && num <= 50) {
+                        setYearsExperience(String(num));
+                      }
+                    }
+                  }}
                   className="text-lg py-6"
                   autoFocus
                 />

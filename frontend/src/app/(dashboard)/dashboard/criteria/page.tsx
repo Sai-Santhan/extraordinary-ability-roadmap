@@ -74,10 +74,10 @@ export default function CriteriaPage() {
   }));
 
   const readinessColor = {
-    "ready to file": "bg-green-100 text-green-800",
+    "ready to file": "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
     "1-2 years": "bg-primary/10 text-primary",
-    "2-4 years": "bg-amber-100 text-amber-800",
-    "significant gaps": "bg-red-100 text-red-800",
+    "2-4 years": "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300",
+    "significant gaps": "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
   }[assessment.overall_readiness] || "bg-muted text-muted-foreground";
 
   return (
@@ -93,13 +93,13 @@ export default function CriteriaPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4" role="list" aria-label="Assessment summary">
         <Card>
           <CardContent className="pt-6 text-center">
-            <p className="text-3xl font-bold text-green-600">{assessment.criteria_met_count}</p>
+            <p className="text-3xl font-bold text-green-600 dark:text-green-400">{assessment.criteria_met_count}</p>
             <p className="text-sm text-muted-foreground">Criteria Met</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6 text-center">
-            <p className="text-3xl font-bold text-amber-600">{assessment.criteria_close_count}</p>
+            <p className="text-3xl font-bold text-amber-600 dark:text-amber-400">{assessment.criteria_close_count}</p>
             <p className="text-sm text-muted-foreground">Close to Meeting</p>
           </CardContent>
         </Card>

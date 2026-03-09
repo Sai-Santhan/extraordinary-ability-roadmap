@@ -33,6 +33,7 @@ PARSER_MAP = {
     ("json", "scholar"): parse_json_generic,
     ("json", "github"): parse_json_generic,
     ("json", "manual"): parse_json_generic,
+    ("json", "documents"): parse_json_generic,
 }
 
 

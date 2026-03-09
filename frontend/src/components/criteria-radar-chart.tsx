@@ -62,20 +62,20 @@ export function CriteriaRadarChart({ data }: { data: CriterionData[] }) {
         <Radar
           name="score"
           dataKey="score"
-          stroke="hsl(var(--chart-1))"
-          fill="hsl(var(--chart-1))"
+          stroke="var(--chart-1)"
+          fill="var(--chart-1)"
           fillOpacity={0.15}
           strokeWidth={2}
           dot={{
             r: 4,
-            fill: "hsl(var(--chart-2))",
-            stroke: "hsl(var(--background))",
+            fill: "var(--chart-2)",
+            stroke: "var(--background)",
             strokeWidth: 2,
           }}
           activeDot={{
             r: 6,
-            fill: "hsl(var(--chart-2))",
-            stroke: "hsl(var(--background))",
+            fill: "var(--chart-2)",
+            stroke: "var(--background)",
             strokeWidth: 2,
           }}
         />

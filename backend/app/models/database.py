@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, JSON, Uuid as _SAUuid
 
 # Store as CHAR(32) — works on both PostgreSQL and SQLite
-Uuid = _SAUuid(as_uuid=False, native_uuid=False)
+Uuid = _SAUuid(as_uuid=True, native_uuid=True)
 
 
 def _uuid_str():

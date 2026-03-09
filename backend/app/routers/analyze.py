@@ -30,19 +30,19 @@ async def get_sse_token(
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
 
-    # Rate limit: 1 analysis per day
+    # Rate limit: 1 analysis per week
     now = datetime.now(timezone.utc)
     if profile.last_analysis_run:
         last_run = profile.last_analysis_run
         if last_run.tzinfo is None:
             last_run = last_run.replace(tzinfo=timezone.utc)
         time_since = now - last_run
-        if time_since < timedelta(hours=24):
-            retry_after = last_run + timedelta(hours=24)
+        if time_since < timedelta(days=7):
+            retry_after = last_run + timedelta(days=7)
             raise HTTPException(
                 status_code=429,
                 detail={
-                    "message": "You can only run analysis once per day",
+                    "message": "You can only run analysis once per week",
                     "retry_after": retry_after.isoformat(),
                     "limit_type": "analysis",
                 },

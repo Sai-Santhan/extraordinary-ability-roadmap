@@ -95,22 +95,23 @@ export default function SettingsPage() {
     }
   };
 
-  const canSwitchToday = () => {
+  const canSwitchPathway = () => {
     if (!profile?.last_pathway_switch) return true;
     const lastSwitch = new Date(profile.last_pathway_switch);
     const now = new Date();
-    return now.getTime() - lastSwitch.getTime() > 24 * 60 * 60 * 1000;
+    return now.getTime() - lastSwitch.getTime() > 30 * 24 * 60 * 60 * 1000;
   };
 
   const getNextSwitchTime = () => {
     if (!profile?.last_pathway_switch) return null;
-    const next = new Date(new Date(profile.last_pathway_switch).getTime() + 24 * 60 * 60 * 1000);
+    const next = new Date(new Date(profile.last_pathway_switch).getTime() + 30 * 24 * 60 * 60 * 1000);
     const now = new Date();
     const diff = next.getTime() - now.getTime();
     if (diff <= 0) return null;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    if (days > 0) return `${days}d`;
     const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    return `${hours}h ${minutes}m`;
+    return `${hours}h`;
   };
 
   const handlePathwaySwitch = async () => {
@@ -126,7 +127,7 @@ export default function SettingsPage() {
       setSwitchOpen(false);
     } catch (err: unknown) {
       if (err instanceof Error && err.message.includes("429")) {
-        setSwitchError("You can only switch pathways once per day.");
+        setSwitchError("You can only switch pathways once per month.");
       } else {
         setSwitchError(err instanceof Error ? err.message : "Failed to switch pathway");
       }
@@ -136,7 +137,7 @@ export default function SettingsPage() {
   };
 
   const currentPathway = PATHWAY_OPTIONS.find((p) => p.value === profile?.target_pathway);
-  const switchAvailable = canSwitchToday();
+  const switchAvailable = canSwitchPathway();
   const nextSwitchIn = getNextSwitchTime();
 
   return (
@@ -172,7 +173,7 @@ export default function SettingsPage() {
             <CardTitle>Target Pathway</CardTitle>
           </div>
           <CardDescription>
-            Your current immigration pathway target. You can switch once per day.
+            Your current immigration pathway target. You can switch once per month.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -201,7 +202,7 @@ export default function SettingsPage() {
                 <DialogHeader>
                   <DialogTitle>Change Target Pathway</DialogTitle>
                   <DialogDescription>
-                    You can only switch pathways once per day. This will require
+                    You can only switch pathways once per month. This will require
                     re-running analysis to update your criteria assessment and roadmap.
                   </DialogDescription>
                 </DialogHeader>

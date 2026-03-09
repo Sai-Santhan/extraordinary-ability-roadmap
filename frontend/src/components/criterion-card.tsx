@@ -21,10 +21,10 @@ export function CriterionCard({ criterion }: { criterion: CriterionScore }) {
   const [expanded, setExpanded] = useState(false);
 
   const strengthColors = {
-    strong: "bg-green-100 text-green-800 border-green-200",
-    moderate: "bg-amber-100 text-amber-800 border-amber-200",
-    weak: "bg-orange-100 text-orange-800 border-orange-200",
-    none: "bg-red-100 text-red-800 border-red-200",
+    strong: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/40 dark:text-green-300 dark:border-green-700",
+    moderate: "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-700",
+    weak: "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/40 dark:text-orange-300 dark:border-orange-700",
+    none: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/40 dark:text-red-300 dark:border-red-700",
   };
 
   const strengthColor = strengthColors[criterion.strength as keyof typeof strengthColors] || strengthColors.none;
@@ -50,7 +50,7 @@ export function CriterionCard({ criterion }: { criterion: CriterionScore }) {
         {/* Evidence found */}
         {criterion.evidence_found.length > 0 && (
           <div>
-            <div className="flex items-center gap-1 text-sm font-medium text-green-700 mb-1">
+            <div className="flex items-center gap-1 text-sm font-medium text-green-700 dark:text-green-400 mb-1">
               <Target className="h-3.5 w-3.5" /> Evidence Found
             </div>
             <ul className="text-sm text-muted-foreground space-y-0.5">
@@ -64,7 +64,7 @@ export function CriterionCard({ criterion }: { criterion: CriterionScore }) {
         {/* Gaps */}
         {criterion.gaps.length > 0 && (
           <div>
-            <div className="flex items-center gap-1 text-sm font-medium text-amber-700 mb-1">
+            <div className="flex items-center gap-1 text-sm font-medium text-amber-700 dark:text-amber-400 mb-1">
               <AlertTriangle className="h-3.5 w-3.5" /> Gaps
             </div>
             <ul className="text-sm text-muted-foreground space-y-0.5">

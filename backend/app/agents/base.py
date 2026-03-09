@@ -70,7 +70,7 @@ class BaseAgent:
         system_with_schema = (
             self.system_prompt
             + "\n\nYou MUST respond with ONLY valid JSON matching this schema. "
-            "No markdown, no code fences, no explanation — just the JSON object.\n\n"
+            "No markdown, no code fences, no explanation — just JSON object.\n\n"
             f"JSON Schema:\n{schema_json}"
         )
 
