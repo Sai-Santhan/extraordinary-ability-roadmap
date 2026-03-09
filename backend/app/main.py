@@ -49,7 +49,12 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-origins = [settings.frontend_url, "http://localhost:3000"]
+origins = [
+    settings.frontend_url,
+    "http://localhost:3000",
+    "https://immigration-roadmap.com",
+    "https://www.immigration-roadmap.com",
+]
 origins = list(dict.fromkeys(origins))
 
 app.add_middleware(
