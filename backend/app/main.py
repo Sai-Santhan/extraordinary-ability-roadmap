@@ -40,6 +40,10 @@ async def _run_migrations():
     migrations = [
         ("users", "onboarding_completed", "ALTER TABLE users ADD COLUMN onboarding_completed BOOLEAN DEFAULT FALSE"),
         ("users", "onboarding_data", "ALTER TABLE users ADD COLUMN onboarding_data JSON"),
+        ("immigration_profiles", "target_pathway", "ALTER TABLE immigration_profiles ADD COLUMN target_pathway VARCHAR(10)"),
+        ("immigration_profiles", "pathway_changed_since_analysis", "ALTER TABLE immigration_profiles ADD COLUMN pathway_changed_since_analysis BOOLEAN DEFAULT FALSE"),
+        ("immigration_profiles", "last_pathway_switch", "ALTER TABLE immigration_profiles ADD COLUMN last_pathway_switch TIMESTAMPTZ"),
+        ("immigration_profiles", "last_analysis_run", "ALTER TABLE immigration_profiles ADD COLUMN last_analysis_run TIMESTAMPTZ"),
     ]
     async with engine.begin() as conn:
         for table, column, ddl in migrations:
