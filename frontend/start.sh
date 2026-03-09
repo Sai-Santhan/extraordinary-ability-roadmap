@@ -1,2 +1,2 @@
 #!/bin/bash
-pnpm start -p ${PORT:-3000}
+pnpm start -p 3000
