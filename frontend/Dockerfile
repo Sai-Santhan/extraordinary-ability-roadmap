@@ -19,4 +19,4 @@ RUN pnpm build
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "pnpm start -p ${PORT:-3000}"]
+CMD ["sh", "-c", "pnpm start -p 3000"]
