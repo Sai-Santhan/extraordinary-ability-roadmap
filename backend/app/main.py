@@ -1,8 +1,10 @@
 import logging
+import traceback
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
@@ -30,10 +32,31 @@ def _init_vector_db():
         logger.warning(f"Vector DB initialization skipped: {e}")
 
 
+async def _run_migrations():
+    """Add columns that create_all can't add to existing tables."""
+    from sqlalchemy import text
+    from app.database import engine
+
+    migrations = [
+        ("users", "onboarding_completed", "ALTER TABLE users ADD COLUMN onboarding_completed BOOLEAN DEFAULT FALSE"),
+        ("users", "onboarding_data", "ALTER TABLE users ADD COLUMN onboarding_data JSON"),
+    ]
+    async with engine.begin() as conn:
+        for table, column, ddl in migrations:
+            exists = await conn.execute(text(
+                "SELECT 1 FROM information_schema.columns "
+                "WHERE table_name = :table AND column_name = :column"
+            ), {"table": table, "column": column})
+            if not exists.scalar():
+                logger.info(f"Migration: adding {table}.{column}")
+                await conn.execute(text(ddl))
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
         await init_db()
+        await _run_migrations()
     except Exception as e:
         logger.warning(f"Database initialization skipped: {e}")
     _init_vector_db()
@@ -93,6 +116,30 @@ app.include_router(data_router)
 app.include_router(onboarding_router)
 
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled exception: {exc}\n{traceback.format_exc()}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error"},
+    )
+
+
 @app.get("/api/health")
 async def health():
     return {"status": "ok"}
+
+
+@app.get("/api/health/db")
+async def health_db():
+    from sqlalchemy import text
+    from app.database import async_session
+    try:
+        async with async_session() as session:
+            await session.execute(text("SELECT 1"))
+        return {"status": "ok", "database": "connected"}
+    except Exception as e:
+        return JSONResponse(
+            status_code=503,
+            content={"status": "error", "database": str(e)},
+        )
