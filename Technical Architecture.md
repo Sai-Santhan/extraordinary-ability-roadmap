@@ -124,7 +124,7 @@ Every architectural decision is guided by DTI's data portability principles:
 | --------------- | ---------------------------------------------- | ------------------------------------------------------------ |
 | File Storage    | Local filesystem (hackathon) → S3 (production) | Uploaded documents, temp processing files                    |
 | USCIS Knowledge | ChromaDB vector DB seeded from curated legal corpus | Criteria definitions, Oct 2024 policy updates, Dhanasar framework — queried via RAG at inference time |
-| Deployment      | Vercel (frontend) + Railway (backend + PostgreSQL) | Fast deployment, auto-deploy from GitHub push                |
+| Deployment      | Railway (frontend + backend + PostgreSQL) | Fast deployment, auto-deploy from GitHub push                |
 
 ------
 
@@ -594,7 +594,7 @@ SQLAlchemy `create_all` handles new tables. For existing tables, a startup migra
 
 | Service  | Platform | URL                                              |
 | -------- | -------- | ------------------------------------------------ |
-| Frontend | Vercel   | `https://immigration-roadmap.com`                |
+| Frontend | Railway  | `https://immigration-roadmap.com`                |
 | Backend  | Railway  | `https://backend-production-95ea4.up.railway.app`|
 | Database | Railway  | PostgreSQL 16 (internal networking)              |
 

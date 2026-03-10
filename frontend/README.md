@@ -1,36 +1,123 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend — Immigration Empowerment Through Data Portability
+
+Next.js 16 App Router frontend with shadcn/ui, Recharts visualizations, and real-time SSE streaming.
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16.1.6 (App Router, Turbopack) |
+| UI | shadcn/ui (Base UI `@base-ui/react` 1.2.0) + Tailwind CSS v4 |
+| Charts | Recharts 2.15.4 (radar chart, bar charts) |
+| Animations | Framer Motion 12.35.1 |
+| State | Zustand 5.0.11 (auth + analysis stores) + React Query 5.90.21 |
+| Auth | Custom JWT stored in Zustand with localStorage persistence |
+| Streaming | EventSource (SSE) for real-time pipeline progress |
+| Theming | next-themes (light/dark mode) |
+| Toasts | Sonner 2.0.7 |
+| Icons | Lucide React 0.577.0 |
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+pnpm dev          # http://localhost:3000
+pnpm build        # Production build (includes TypeScript checks)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Requires the backend running at `http://localhost:8000` (configurable via `NEXT_PUBLIC_BACKEND_URL`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/
+│   ├── (public)/                 # Public routes (no auth required)
+│   │   ├── page.tsx              # Landing page with features and CTA
+│   │   ├── login/page.tsx        # Login form
+│   │   └── register/page.tsx     # Registration form
+│   ├── (dashboard)/              # Protected routes (auth + onboarding required)
+│   │   ├── layout.tsx            # Dashboard wrapper with sidebar, auth checks, onboarding redirect
+│   │   ├── page.tsx              # Dashboard overview (profile status, quick actions, readiness)
+│   │   └── dashboard/
+│   │       ├── evidence/page.tsx # Evidence upload & management (7 source types)
+│   │       ├── criteria/page.tsx # Criteria radar chart + criterion cards
+│   │       ├── roadmap/page.tsx  # Quarterly milestones with actions
+│   │       ├── export/page.tsx   # Export center (JSON, Markdown, PDF, DOCX)
+│   │       └── settings/page.tsx # Account settings, consent tracking, data deletion
+│   ├── onboarding/page.tsx       # 6-step wizard with pathway recommendation
+│   ├── layout.tsx                # Root layout with providers
+│   └── globals.css               # Global styles
+├── components/
+│   ├── ui/                       # shadcn/ui primitives (Base UI based)
+│   │   ├── button.tsx, card.tsx, dialog.tsx, sidebar.tsx, badge.tsx, etc.
+│   ├── dashboard-sidebar.tsx     # Navigation sidebar
+│   ├── criteria-radar-chart.tsx  # Recharts radar chart for criteria scores
+│   ├── criterion-card.tsx        # Individual criterion detail card
+│   ├── consent-modal.tsx         # Per-source consent interface
+│   ├── confirm-modal.tsx         # Confirmation dialogs
+│   └── theme-provider.tsx        # Light/dark mode provider
+└── lib/
+    ├── store.ts                  # Zustand stores (auth + analysis)
+    ├── api.ts                    # API client with JWT auth
+    ├── providers.tsx             # React Query + theme providers
+    └── utils.ts                  # Utility functions
+```
 
-## Learn More
+## Key Architecture Decisions
 
-To learn more about Next.js, take a look at the following resources:
+### shadcn/ui with Base UI (not Radix)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This project uses `@base-ui/react` 1.2.0, not Radix primitives. Component composition uses the `render` prop pattern:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```tsx
+// Correct — Base UI pattern
+<DialogTrigger render={<Button />}>Open</DialogTrigger>
 
-## Deploy on Vercel
+// Wrong — Radix pattern (do NOT use)
+<DialogTrigger asChild><Button>Open</Button></DialogTrigger>
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Custom JWT Auth (not NextAuth)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Authentication is fully custom — NextAuth v5 is in `package.json` but unused. Auth state lives in a Zustand store with localStorage persistence:
+
+```typescript
+useAuthStore: {
+  token, userId, userName, onboardingCompleted,
+  setAuth, clearAuth, isAuthenticated
+}
+```
+
+The `apiClient` utility reads the token from the store and attaches it as a Bearer header. For SSE connections (EventSource can't send headers), the backend provides a short-lived SSE-specific JWT token passed as a query parameter.
+
+### Analysis State
+
+Pipeline progress is tracked in a separate Zustand store:
+
+```typescript
+useAnalysisStore: {
+  currentProfileId,
+  stages: { ingestion, extraction, assessment, roadmap },  // each: 'idle' | 'running' | 'completed' | 'error'
+  setStage, reset
+}
+```
+
+## Pages
+
+| Route | Purpose |
+|-------|---------|
+| `/` | Landing page |
+| `/login` | Login form |
+| `/register` | Registration form |
+| `/onboarding` | 6-step wizard → pathway recommendation |
+| `/` (dashboard) | Profile overview, quick actions |
+| `/dashboard/evidence` | Upload CV, Scholar, GitHub, Gmail, ChatGPT, LinkedIn, images |
+| `/dashboard/criteria` | Radar chart + criterion cards with confidence scores |
+| `/dashboard/roadmap` | Quarterly milestones with specific actions |
+| `/dashboard/export` | Download JSON, Markdown, PDF, DOCX |
+| `/dashboard/settings` | Account settings, consent tracking, data deletion |
+
+## Deployment
+
+Deployed on Railway at [immigration-roadmap.com](https://immigration-roadmap.com). Auto-deploys on push to `main`.

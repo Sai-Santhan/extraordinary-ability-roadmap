@@ -22,21 +22,21 @@
 flowchart TB
   subgraph SOURCES["📂 User Data Sources"]
     direction LR
-    CV["📄 CV/Resume · PDF, DOCX"]
+    CV["📄 CV/Resume · PDF, TXT"]
     SCHOLAR["🎓 Google Scholar · JSON"]
     GITHUB["💻 GitHub · JSON"]
     TAKEOUT["📦 Google Takeout · MBOX, ICS"]
     CHATGPT["💬 ChatGPT Export · JSON"]
-    LINKEDIN["🔗 LinkedIn · PDF"]
-    IMAGES["🖼️ Certificates · PNG, JPG"]
+    LINKEDIN["🔗 LinkedIn · PDF, TXT"]
+    IMAGES["🖼️ Certificates · PNG, JPG, WEBP"]
   end
 
-  subgraph FRONTEND["⚡ Frontend — Next.js 16.1.6 · Vercel"]
+  subgraph FRONTEND["⚡ Frontend — Next.js 16.1.6 · Railway"]
     direction TB
     subgraph PAGES["App Router Pages"]
       direction LR
       LANDING["Landing"]
-      ONBOARD["Onboarding"]
+      ONBOARD["Onboarding · 6-step wizard"]
       EVIDENCE["Evidence Upload"]
       CRITERIA["Criteria Dashboard"]
       ROADMAP_UI["Roadmap"]
@@ -46,10 +46,11 @@ flowchart TB
     subgraph FSTACK["Stack"]
       direction LR
       BASEUI["shadcn/ui · Base UI"]
-      TAILWIND["Tailwind CSS"]
-      ZUSTAND["Zustand · Auth + State"]
+      TAILWIND["Tailwind CSS v4"]
+      ZUSTAND["Zustand · Auth + Analysis"]
       RQ["React Query"]
       RECHARTS["Recharts"]
+      FM["Framer Motion"]
     end
     SSE_CLIENT["EventSource · SSE Client"]
   end
@@ -60,17 +61,18 @@ flowchart TB
       direction LR
       JWT["JWT · python-jose + bcrypt"]
       RATE["Rate Limiter · slowapi"]
-      CORS["CORS Middleware"]
-      ROUTES["Routers: auth · profiles · evidence · analyze · export · consent · data"]
+      CORS["CORS + Security Headers"]
+      ROUTES["Routers: auth · onboarding · profiles · evidence · analyze · export · consent · data"]
     end
     subgraph PARSERS["📑 File Parsers"]
       direction LR
       P_PDF["PDF · PyMuPDF"]
-      P_JSON["JSON · Scholar/ChatGPT"]
+      P_TXT["TXT · plain text"]
+      P_JSON["JSON · Scholar/GitHub/ChatGPT/Takeout"]
       P_MBOX["MBOX · Gmail"]
       P_ICS["ICS · Calendar"]
-      P_LI["LinkedIn PDF"]
-      P_IMG["Image · PNG/JPG"]
+      P_LI["LinkedIn · PDF/TXT"]
+      P_IMG["Image · Claude Vision API"]
     end
     subgraph PIPELINE["🤖 Agentic Pipeline — 4 Sequential Agents"]
       direction LR
@@ -82,8 +84,14 @@ flowchart TB
       A1 --> PII --> A2 --> A3 --> A4
     end
     SSE_SERVER["SSE Stream · /api/analyze/stream/{id}?token=JWT"]
-    subgraph EXPORT["📤 Export"]
+    subgraph SERVICES["🔧 Services"]
       direction LR
+      CHROMA["ChromaDB · In-Process · 25 Legal Documents"]
+      CONSENT["Consent Tracker · Per-source"]
+    end
+    subgraph EXPORT["📤 Export Engine"]
+      direction LR
+      E_JSON["JSON"]
       E_MD["Markdown"]
       E_PDF["PDF · ReportLab"]
       E_DOCX["DOCX · python-docx"]
@@ -92,8 +100,7 @@ flowchart TB
 
   subgraph EXTERNAL["☁️ External Services"]
     direction LR
-    CLAUDE["Claude API · Sonnet 4.5 · Structured Outputs"]
-    CHROMA["ChromaDB · In-Memory · 25 Legal Documents"]
+    CLAUDE["Claude API · Sonnet 4.5 · Structured Outputs + Vision"]
   end
 
   subgraph DATA["💾 Data Layer · Railway"]
@@ -110,6 +117,7 @@ flowchart TB
   CORS --> ROUTES
   ROUTES --> PARSERS
   PARSERS --> A1
+  P_IMG -- "Vision API" --> CLAUDE
   A2 -- "Structured Outputs" --> CLAUDE
   A3 -- "Structured Outputs" --> CLAUDE
   A4 -- "Structured Outputs" --> CLAUDE
@@ -118,6 +126,7 @@ flowchart TB
   PIPELINE -- "Stage events" --> SSE_SERVER
   ROUTES --> PG
   PIPELINE --> PG
+  ROUTES --> CONSENT
   ROUTES --> EXPORT
   EXPORT -- "Portable formats" --> SCHEMAS
 
@@ -130,13 +139,15 @@ flowchart TB
   classDef data fill:#1c1917,stroke:#f59e0b,color:#fef3c7,stroke-width:1px
   classDef parser fill:#27272a,stroke:#a1a1aa,color:#e4e4e7,stroke-width:1px
   classDef export fill:#1a2e05,stroke:#84cc16,color:#ecfccb,stroke-width:1px
+  classDef service fill:#1a2e2e,stroke:#14b8a6,color:#ccfbf1,stroke-width:1px
 
   class CV,SCHOLAR,GITHUB,TAKEOUT,CHATGPT,LINKEDIN,IMAGES source
-  class LANDING,ONBOARD,EVIDENCE,CRITERIA,ROADMAP_UI,EXPORT_UI,SETTINGS,BASEUI,TAILWIND,ZUSTAND,RQ,RECHARTS,SSE_CLIENT frontend
+  class LANDING,ONBOARD,EVIDENCE,CRITERIA,ROADMAP_UI,EXPORT_UI,SETTINGS,BASEUI,TAILWIND,ZUSTAND,RQ,RECHARTS,FM,SSE_CLIENT frontend
   class JWT,RATE,CORS,ROUTES,SSE_SERVER backend
   class A1,A2,A3,A4 agent
   class PII pii
-  class P_PDF,P_JSON,P_MBOX,P_ICS,P_LI,P_IMG parser
-  class CLAUDE,CHROMA external
+  class P_PDF,P_TXT,P_JSON,P_MBOX,P_ICS,P_LI,P_IMG parser
+  class CLAUDE external
   class PG,SCHEMAS data
-  class E_MD,E_PDF,E_DOCX export
+  class E_JSON,E_MD,E_PDF,E_DOCX export
+  class CHROMA,CONSENT service

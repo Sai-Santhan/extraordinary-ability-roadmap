@@ -102,7 +102,7 @@ SQLAlchemy `create_all` only creates new tables. For adding columns to existing 
 
 ## Deployment
 
-- **Frontend**: Vercel at `immigration-roadmap.com`
+- **Frontend**: Railway at `immigration-roadmap.com`
 - **Backend**: Railway at `backend-production-95ea4.up.railway.app`
 - **Database**: Railway PostgreSQL (internal networking)
 - Auto-deploy on push to `main`. Use `railway up --detach` for manual backend deploys.
