@@ -17,11 +17,27 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const router = useRouter();
   const setAuth = useAuthStore((s) => s.setAuth);
 
+  const markTouched = (field: string) => setTouched((prev) => ({ ...prev, [field]: true }));
+
+  const validationErrors = {
+    email: email.length === 0
+      ? "Email is required"
+      : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+        ? "Please enter a valid email address"
+        : null,
+    password: password.length === 0 ? "Password is required" : null,
+  };
+
+  const hasValidationErrors = Object.values(validationErrors).some(Boolean);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setTouched({ email: true, password: true });
+    if (hasValidationErrors) return;
     setError("");
     setLoading(true);
     try {
@@ -68,8 +84,14 @@ export default function LoginPage() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onBlur={() => markTouched("email")}
+                aria-invalid={touched.email && !!validationErrors.email}
+                aria-describedby={touched.email && validationErrors.email ? "email-error" : undefined}
                 required
               />
+              {touched.email && validationErrors.email && (
+                <p id="email-error" className="text-xs text-destructive">{validationErrors.email}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
@@ -79,6 +101,9 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onBlur={() => markTouched("password")}
+                  aria-invalid={touched.password && !!validationErrors.password}
+                  aria-describedby={touched.password && validationErrors.password ? "password-error" : undefined}
                   required
                 />
                 <button
@@ -90,6 +115,9 @@ export default function LoginPage() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+              {touched.password && validationErrors.password && (
+                <p id="password-error" className="text-xs text-destructive">{validationErrors.password}</p>
+              )}
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Logging in..." : "Log in"}

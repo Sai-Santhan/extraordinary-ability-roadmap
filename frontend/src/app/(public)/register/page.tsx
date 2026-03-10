@@ -18,11 +18,36 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const router = useRouter();
   const setAuth = useAuthStore((s) => s.setAuth);
 
+  const markTouched = (field: string) => setTouched((prev) => ({ ...prev, [field]: true }));
+
+  const validationErrors = {
+    name: name.trim().length === 0 ? "Full name is required" : null,
+    email: email.length === 0
+      ? "Email is required"
+      : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+        ? "Please enter a valid email address"
+        : null,
+    password: password.length === 0
+      ? "Password is required"
+      : password.length < 8
+        ? "Password must be at least 8 characters"
+        : !/[a-zA-Z]/.test(password)
+          ? "Password must contain at least one letter"
+          : !/[0-9]/.test(password)
+            ? "Password must contain at least one number"
+            : null,
+  };
+
+  const hasValidationErrors = Object.values(validationErrors).some(Boolean);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setTouched({ name: true, email: true, password: true });
+    if (hasValidationErrors) return;
     setError("");
     setLoading(true);
     try {
@@ -68,8 +93,14 @@ export default function RegisterPage() {
                 placeholder="Dr. Jane Smith"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                onBlur={() => markTouched("name")}
+                aria-invalid={touched.name && !!validationErrors.name}
+                aria-describedby={touched.name && validationErrors.name ? "name-error" : undefined}
                 required
               />
+              {touched.name && validationErrors.name && (
+                <p id="name-error" className="text-xs text-destructive">{validationErrors.name}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -79,8 +110,14 @@ export default function RegisterPage() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onBlur={() => markTouched("email")}
+                aria-invalid={touched.email && !!validationErrors.email}
+                aria-describedby={touched.email && validationErrors.email ? "email-error" : undefined}
                 required
               />
+              {touched.email && validationErrors.email && (
+                <p id="email-error" className="text-xs text-destructive">{validationErrors.email}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
@@ -91,6 +128,9 @@ export default function RegisterPage() {
                   placeholder="At least 8 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onBlur={() => markTouched("password")}
+                  aria-invalid={touched.password && !!validationErrors.password}
+                  aria-describedby={touched.password && validationErrors.password ? "password-error" : undefined}
                   required
                   minLength={8}
                 />
@@ -103,6 +143,9 @@ export default function RegisterPage() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+              {touched.password && validationErrors.password && (
+                <p id="password-error" className="text-xs text-destructive">{validationErrors.password}</p>
+              )}
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Creating account..." : "Create account"}
