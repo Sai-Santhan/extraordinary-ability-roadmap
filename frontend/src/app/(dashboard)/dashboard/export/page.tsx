@@ -19,6 +19,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { apiClient } from "@/lib/api";
+import { toast } from "sonner";
 
 const EXPORT_FORMATS = [
   {
@@ -74,7 +75,7 @@ export default function ExportPage() {
           setProfileStatus(profiles[0].status);
         }
       })
-      .catch(() => {});
+      .catch(() => toast.error("Failed to load profile"));
   }, []);
 
   const handleExport = async (format: string, ext: string) => {
@@ -92,8 +93,9 @@ export default function ExportPage() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      toast.success("Download started");
     } catch {
-      // Handle error
+      toast.error("Export failed. Please try again.");
     } finally {
       setDownloading(null);
     }

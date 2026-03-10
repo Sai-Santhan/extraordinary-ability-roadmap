@@ -21,9 +21,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { Shield, Trash2, X, User, Compass, AlertCircle } from "lucide-react";
+import { Shield, Trash2, X, User, Compass, AlertCircle, Database } from "lucide-react";
 import { apiClient } from "@/lib/api";
 import { useAuthStore } from "@/lib/store";
+import { toast } from "sonner";
 
 const PATHWAY_OPTIONS = [
   { value: "eb1a", label: "EB-1A: Extraordinary Ability" },
@@ -49,8 +50,10 @@ interface Profile {
 
 export default function SettingsPage() {
   const [consents, setConsents] = useState<Consent[]>([]);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const [deleteDataOpen, setDeleteDataOpen] = useState(false);
+  const [deletingData, setDeletingData] = useState(false);
+  const [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [switchOpen, setSwitchOpen] = useState(false);
   const [selectedPathway, setSelectedPathway] = useState("");
@@ -63,35 +66,53 @@ export default function SettingsPage() {
     apiClient
       .get<Consent[]>("/api/consent/")
       .then(setConsents)
-      .catch(() => {});
+      .catch(() => toast.error("Failed to load consents"));
     apiClient
       .get<Profile[]>("/api/profiles/")
       .then((profiles) => {
         if (profiles.length > 0) setProfile(profiles[0]);
       })
-      .catch(() => {});
+      .catch(() => toast.error("Failed to load profile"));
   }, []);
 
   const handleRevoke = async (sourceType: string) => {
     try {
       await apiClient.delete(`/api/consent/${sourceType}`);
       setConsents((prev) => prev.filter((c) => c.source_type !== sourceType));
+      toast.success("Consent revoked");
     } catch {
-      // Handle error
+      toast.error("Failed to revoke consent");
     }
   };
 
-  const handleDeleteAllData = async () => {
-    setDeleting(true);
+  const handleDeleteDataOnly = async () => {
+    setDeletingData(true);
+    try {
+      await apiClient.delete("/api/data/me/data-only");
+      toast.success("All data deleted. Your account is still active.");
+      setDeleteDataOpen(false);
+      setConsents([]);
+      setProfile(null);
+      router.push("/dashboard");
+    } catch {
+      toast.error("Failed to delete data. Please try again.");
+    } finally {
+      setDeletingData(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true);
     try {
       await apiClient.delete("/api/data/me");
+      toast.success("Account deleted");
       clearAuth();
       apiClient.clearToken();
       router.push("/");
     } catch {
-      // Handle error
+      toast.error("Failed to delete account. Please try again.");
     } finally {
-      setDeleting(false);
+      setDeletingAccount(false);
     }
   };
 
@@ -125,6 +146,7 @@ export default function SettingsPage() {
       }>(`/api/profiles/${profile.id}/pathway`, { pathway: selectedPathway });
       setProfile((prev) => prev ? { ...prev, target_pathway: result.target_pathway, last_pathway_switch: result.last_pathway_switch } : prev);
       setSwitchOpen(false);
+      toast.success("Pathway updated");
     } catch (err: unknown) {
       if (err instanceof Error && err.message.includes("429")) {
         setSwitchError("You can only switch pathways once per month.");
@@ -304,22 +326,71 @@ export default function SettingsPage() {
 
       <Separator />
 
-      {/* Danger Zone */}
+      {/* Danger Zone — Delete Data */}
+      <Card className="border-amber-200 dark:border-amber-800">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Database className="h-5 w-5 text-amber-600" aria-hidden="true" />
+            <CardTitle className="text-amber-600">Delete My Data</CardTitle>
+          </div>
+          <CardDescription>
+            Delete all profiles, uploaded files, assessments, roadmaps, and consent records.
+            Your account will remain active so you can start fresh.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Dialog open={deleteDataOpen} onOpenChange={setDeleteDataOpen}>
+            <DialogTrigger render={<Button variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/30" />}>
+              Delete My Data
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete all your data?</DialogTitle>
+                <DialogDescription>
+                  This will permanently delete:
+                  <ul className="mt-2 list-disc list-inside space-y-1">
+                    <li>Your immigration profile</li>
+                    <li>All uploaded evidence files</li>
+                    <li>Criteria assessments and roadmaps</li>
+                    <li>All consent records</li>
+                  </ul>
+                  <br />
+                  Your account will remain active. You can re-upload data and start fresh.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setDeleteDataOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleDeleteDataOnly}
+                  disabled={deletingData}
+                >
+                  {deletingData ? "Deleting..." : "Yes, delete my data"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </CardContent>
+      </Card>
+
+      {/* Danger Zone — Delete Account */}
       <Card className="border-red-200 dark:border-red-800">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Trash2 className="h-5 w-5 text-red-600" aria-hidden="true" />
-            <CardTitle className="text-red-600">Delete All Data</CardTitle>
+            <CardTitle className="text-red-600">Delete Account</CardTitle>
           </div>
           <CardDescription>
-            Permanently delete your account, all profiles, uploaded files,
-            assessments, and roadmaps. This action cannot be undone.
+            Permanently delete your account and all associated data.
+            This action cannot be undone.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+          <Dialog open={deleteAccountOpen} onOpenChange={setDeleteAccountOpen}>
             <DialogTrigger render={<Button variant="destructive" />}>
-              Delete All My Data
+              Delete My Account
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -328,28 +399,26 @@ export default function SettingsPage() {
                   This will permanently delete your account and all associated
                   data including:
                   <ul className="mt-2 list-disc list-inside space-y-1">
+                    <li>Your user account</li>
                     <li>Your immigration profile</li>
                     <li>All uploaded evidence files</li>
                     <li>Criteria assessments and roadmaps</li>
                     <li>All consent records</li>
                   </ul>
                   <br />
-                  This action cannot be undone.
+                  This action cannot be undone. You will need to create a new account.
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => setDeleteOpen(false)}
-                >
+                <Button variant="outline" onClick={() => setDeleteAccountOpen(false)}>
                   Cancel
                 </Button>
                 <Button
                   variant="destructive"
-                  onClick={handleDeleteAllData}
-                  disabled={deleting}
+                  onClick={handleDeleteAccount}
+                  disabled={deletingAccount}
                 >
-                  {deleting ? "Deleting..." : "Yes, delete everything"}
+                  {deletingAccount ? "Deleting..." : "Yes, delete my account"}
                 </Button>
               </DialogFooter>
             </DialogContent>

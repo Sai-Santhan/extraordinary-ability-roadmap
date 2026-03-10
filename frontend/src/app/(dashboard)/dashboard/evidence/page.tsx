@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,7 @@ import {
 import { ConsentModal } from "@/components/consent-modal";
 import { apiClient } from "@/lib/api";
 import { useAuthStore, useAnalysisStore } from "@/lib/store";
+import { toast } from "sonner";
 
 const DATA_SOURCES = [
   { type: "cv", name: "CV / Resume", icon: FileText, accept: ".pdf,.txt,.docx", description: "Upload your CV or resume" },
@@ -67,6 +68,8 @@ export default function EvidencePage() {
   const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [dragOverSource, setDragOverSource] = useState<string | null>(null);
+  const dragCounterRef = useRef(0);
   const token = useAuthStore((s) => s.token);
   const { stages, setStage, setProfileId: setAnalysisProfileId, reset: resetAnalysis } = useAnalysisStore();
 
@@ -91,7 +94,7 @@ export default function EvidencePage() {
         const c = await apiClient.get<Consent[]>("/api/consent/");
         setConsents(c);
       } catch {
-        // Handle error
+        toast.error("Failed to load evidence data. Please refresh the page.");
       }
     };
     init();
@@ -121,8 +124,9 @@ export default function EvidencePage() {
       formData.append("profile_id", profileId);
       const result = await apiClient.uploadFile<UploadedFile>("/api/evidence/upload", formData);
       setUploads((prev) => [...prev, result]);
-    } catch {
-      // Handle error
+      toast.success("File uploaded successfully");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to upload file. Please try again.");
     } finally {
       setUploading(null);
     }
@@ -134,8 +138,9 @@ export default function EvidencePage() {
       await apiClient.delete(`/api/evidence/${evidenceId}`);
       setUploads((prev) => prev.filter((u) => u.id !== evidenceId));
       if (previewId === evidenceId) setPreviewId(null);
+      toast.success("File deleted");
     } catch {
-      // Handle error
+      toast.error("Failed to delete file. Please try again.");
     } finally {
       setRemoving(null);
     }
@@ -343,13 +348,45 @@ export default function EvidencePage() {
                     </div>
                   )}
 
-                  {/* Upload area — always shown */}
+                  {/* Upload area — always shown, supports drag & drop */}
                   <label
                     className={`flex items-center gap-2 rounded-lg cursor-pointer transition-colors ${
-                      hasFiles
-                        ? "p-2.5 border border-dashed hover:border-primary/30 hover:bg-primary/5 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 justify-center"
-                        : "flex-col p-4 border-2 border-dashed hover:border-primary/30 hover:bg-primary/5 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2"
+                      dragOverSource === source.type
+                        ? hasFiles
+                          ? "p-2.5 border-2 border-primary bg-primary/10 justify-center"
+                          : "flex-col p-4 border-2 border-primary bg-primary/10"
+                        : hasFiles
+                          ? "p-2.5 border border-dashed hover:border-primary/30 hover:bg-primary/5 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 justify-center"
+                          : "flex-col p-4 border-2 border-dashed hover:border-primary/30 hover:bg-primary/5 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2"
                     }`}
+                    onDragEnter={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      dragCounterRef.current++;
+                      setDragOverSource(source.type);
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onDragLeave={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      dragCounterRef.current--;
+                      if (dragCounterRef.current === 0) {
+                        setDragOverSource(null);
+                      }
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      dragCounterRef.current = 0;
+                      setDragOverSource(null);
+                      const file = e.dataTransfer.files?.[0];
+                      if (file && !isUploading) {
+                        handleFileSelect(source.type, source.name, file);
+                      }
+                    }}
                   >
                     {isUploading ? (
                       <Loader2 className={`animate-spin text-primary ${hasFiles ? "h-4 w-4" : "h-8 w-8"}`} aria-hidden="true" />
@@ -359,7 +396,7 @@ export default function EvidencePage() {
                       <Upload className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
                     )}
                     <span className={`text-muted-foreground text-center ${hasFiles ? "text-xs" : "text-xs"}`}>
-                      {isUploading ? "Uploading..." : hasFiles ? "Add another file" : `Drop or click (${source.accept})`}
+                      {isUploading ? "Uploading..." : dragOverSource === source.type ? "Drop file here" : hasFiles ? "Add another file" : `Drop or click (${source.accept})`}
                     </span>
                     <input
                       type="file"

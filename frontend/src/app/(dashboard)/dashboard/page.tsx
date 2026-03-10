@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Upload, BarChart3, Route, FileDown, ArrowRight, AlertCircle } from "lucide-react";
 import { apiClient } from "@/lib/api";
 import { useAuthStore } from "@/lib/store";
+import { toast } from "sonner";
 
 const PATHWAY_NAMES: Record<string, string> = {
   eb1a: "EB-1A",
@@ -38,7 +39,7 @@ export default function DashboardPage() {
     apiClient
       .get<Profile[]>("/api/profiles/")
       .then(setProfiles)
-      .catch(() => {})
+      .catch(() => toast.error("Failed to load profile data"))
       .finally(() => setLoading(false));
   }, []);
 
